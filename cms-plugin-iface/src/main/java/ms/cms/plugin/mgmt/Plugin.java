@@ -33,9 +33,4 @@ public interface Plugin {
      * Activates plugin
      */
     public void doActivate();
-
-    /**
-     * Validates plugin
-     */
-    void doValidate();
 }

@@ -4,7 +4,7 @@ package ms.cms.plugin.mgmt;
  * AssetManagementPlugin
  * Created by bazzoni on 06/05/2015.
  */
-public interface AssetManagementPlugin extends Plugin {
+public interface AssetManagementPlugin<T> extends Plugin {
     /**
      * Creates a base repository container for site
      *
@@ -61,4 +61,12 @@ public interface AssetManagementPlugin extends Plugin {
      *
      */
     public void deleteAsset(String siteId, String nodeId) throws PluginOperationException;
+
+    /**
+     * Find a site Repository
+     *
+     * @param siteId siteId
+     * @return site repository
+     */
+    T findSiteRepository(String siteId);
 }

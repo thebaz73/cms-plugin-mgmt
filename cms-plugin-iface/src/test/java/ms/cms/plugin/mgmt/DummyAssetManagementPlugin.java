@@ -1,5 +1,8 @@
 package ms.cms.plugin.mgmt;
 
+import com.mongodb.util.Hash;
+import org.springframework.stereotype.Component;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,8 +12,14 @@ import java.util.Map;
  * Created by bazzoni on 06/05/2015.
  */
 @SuppressWarnings("unchecked")
-public class DummyAssetManagementPlugin extends PluginImpl implements AssetManagementPlugin {
+@Component
+public class DummyAssetManagementPlugin extends PluginImpl implements AssetManagementPlugin<HashMap<String, Object>> {
     private final Map<String, Object> repository = new HashMap<>();
+
+    public Map<String, Object> getRepository() {
+        return repository;
+    }
+
     /**
      * Creates a base repository container for site
      *
@@ -113,12 +122,24 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
         }
     }
 
+    /**
+     * Find a site Repository
+     *
+     * @param siteId siteId
+     * @return site repository
+     */
+    @Override
+    public HashMap<String, Object> findSiteRepository(String siteId) {
+        return (HashMap<String, Object>) repository.get(siteId);
+    }
+
 
     /**
      * Validates plugin
      */
     @Override
-    public void doValidate() {
+    protected void doValidate() {
         repository.clear();
+        status = PluginStatus.ACTIVE;
     }
 }
