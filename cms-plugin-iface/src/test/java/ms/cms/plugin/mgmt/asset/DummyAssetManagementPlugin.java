@@ -1,11 +1,9 @@
-package ms.cms.plugin.mgmt;
+package ms.cms.plugin.mgmt.asset;
 
-import com.mongodb.util.Hash;
+import ms.cms.plugin.mgmt.PluginImpl;
+import ms.cms.plugin.mgmt.PluginOperationException;
+import ms.cms.plugin.mgmt.PluginStatus;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * DummyAssetManagementPlugin
@@ -13,10 +11,10 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 @Component
-public class DummyAssetManagementPlugin extends PluginImpl implements AssetManagementPlugin<HashMap<String, Object>, Object> {
-    private final Map<String, Object> repository = new HashMap<>();
+public class DummyAssetManagementPlugin extends PluginImpl implements AssetManagementPlugin<DummyContainer, DummyAsset> {
+    private final DummyContainer repository = new DummyContainer();
 
-    public Map<String, Object> getRepository() {
+    public DummyContainer getRepository() {
         return repository;
     }
 
@@ -29,7 +27,7 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
      */
     @Override
     public String createSiteRepository(String siteId) throws PluginOperationException {
-        repository.put(siteId, new HashMap<>());
+        repository.put(siteId, new DummyContainer());
 
         return siteId;
     }
@@ -55,8 +53,8 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
      */
     @Override
     public String createFolder(String siteId, String path) throws PluginOperationException {
-        HashMap<String, Object> siteRepo = (HashMap<String, Object>) repository.get(siteId);
-        siteRepo.put(path, new HashMap<String, HashMap<String, Object>>());
+        DummyContainer siteRepo = (DummyContainer) repository.get(siteId);
+        siteRepo.put(path, new DummyContainer());
 
         return path;
     }
@@ -70,34 +68,32 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
      */
     @Override
     public void deleteFolder(String siteId, String nodeId) throws PluginOperationException {
-        HashMap<String, Object> siteRepo = (HashMap<String, Object>) repository.get(siteId);
+        DummyContainer siteRepo = (DummyContainer) repository.get(siteId);
         siteRepo.remove(nodeId);
     }
 
     /**
      * Creates an asset for the site and folder
      *
-     * @param siteId   site id
-     * @param path     internal path
-     * @param filename asset file name
+     * @param siteId site id
+     * @param path   internal path
+     * @param name   asset  name
+     * @param data   asset data
      * @return asset path
      * @throws PluginOperationException if operation failure
      */
     @Override
-    public String createAsset(String siteId, String path, String filename) throws PluginOperationException {
-        HashMap<String, Object> siteRepo = (HashMap<String, Object>) repository.get(siteId);
-        HashMap<String, Object> folderRepo;
-        if(path.isEmpty()) {
+    public String createAsset(String siteId, String path, String name, byte[] data) throws PluginOperationException {
+        DummyContainer siteRepo = (DummyContainer) repository.get(siteId);
+        DummyContainer folderRepo;
+        if (path.isEmpty()) {
             folderRepo = siteRepo;
+        } else {
+            folderRepo = (DummyContainer) siteRepo.get(path);
         }
-        else {
-            folderRepo = (HashMap<String, Object>) siteRepo.get(path);
-        }
-        HashMap<String, Object> asset = new HashMap<>();
-        asset.put(filename, new File(filename));
-        folderRepo.put(filename, asset);
+        folderRepo.put(name, new DummyAsset(name, data));
 
-        return filename;
+        return name;
     }
 
     /**
@@ -109,14 +105,13 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
      */
     @Override
     public void deleteAsset(String siteId, String nodeId) throws PluginOperationException {
-        HashMap<String, Object> siteRepo = (HashMap<String, Object>) repository.get(siteId);
-        HashMap<String, Object> folderRepo;
-        if(nodeId.contains("/")) {
+        DummyContainer siteRepo = (DummyContainer) repository.get(siteId);
+        DummyContainer folderRepo;
+        if (nodeId.contains("/")) {
             String[] tokens = nodeId.split("/");
-            folderRepo = (HashMap<String, Object>) siteRepo.get(tokens[0]);
+            folderRepo = (DummyContainer) siteRepo.get(tokens[0]);
             folderRepo.remove(tokens[1]);
-        }
-        else {
+        } else {
             folderRepo = siteRepo;
             folderRepo.remove(nodeId);
         }
@@ -129,21 +124,21 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
      * @return site repository
      */
     @Override
-    public HashMap<String, Object> findSiteRepository(String siteId) {
-        return (HashMap<String, Object>) repository.get(siteId);
+    public DummyContainer findSiteRepository(String siteId) {
+        return (DummyContainer) repository.get(siteId);
     }
 
     /**
      * Find a site Repository
      *
      * @param siteId siteId
-     * @param path path
+     * @param path   path
      * @return site repository
      */
     @Override
-    public HashMap<String, Object> findFolder(String siteId, String path) {
-        HashMap<String, Object> siteRepo = (HashMap<String, Object>) repository.get(siteId);
-        return (HashMap<String, Object>) siteRepo.get(path);
+    public DummyContainer findFolder(String siteId, String path) {
+        DummyContainer siteRepo = (DummyContainer) repository.get(siteId);
+        return (DummyContainer) siteRepo.get(path);
     }
 
     /**
@@ -154,17 +149,16 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
      * @return site repository
      */
     @Override
-    public Object findAsset(String siteId, String nodeId) {
-        HashMap<String, Object> siteRepo = (HashMap<String, Object>) repository.get(siteId);
-        HashMap<String, Object> folderRepo;
-        if(nodeId.contains("/")) {
+    public DummyAsset findAsset(String siteId, String nodeId) {
+        DummyContainer siteRepo = (DummyContainer) repository.get(siteId);
+        DummyContainer folderRepo;
+        if (nodeId.contains("/")) {
             String[] tokens = nodeId.split("/");
-            folderRepo = (HashMap<String, Object>) siteRepo.get(tokens[0]);
-            return folderRepo.get(tokens[1]);
-        }
-        else {
+            folderRepo = (DummyContainer) siteRepo.get(tokens[0]);
+            return (DummyAsset) folderRepo.get(tokens[1]);
+        } else {
             folderRepo = siteRepo;
-            return folderRepo.get(nodeId);
+            return (DummyAsset) folderRepo.get(nodeId);
         }
     }
 

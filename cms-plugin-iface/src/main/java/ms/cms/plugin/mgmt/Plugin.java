@@ -7,30 +7,34 @@ package ms.cms.plugin.mgmt;
 public interface Plugin {
     /**
      * Get plugin identification code
+     *
      * @return id
      */
-    public String getId();
+    String getId();
 
     /**
      * Get plugin name
+     *
      * @return name
      */
-    public String getName();
+    String getName();
 
     /**
      * Get actual status
+     *
      * @return status
      */
-    public PluginStatus getStatus();
+    PluginStatus getStatus();
 
     /**
      * Get VERSION
+     *
      * @return VERSION
      */
-    public String getVERSION();
+    String getVERSION();
 
     /**
      * Activates plugin
      */
-    public void doActivate();
+    void doActivate();
 }
