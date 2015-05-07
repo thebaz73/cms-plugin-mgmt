@@ -4,7 +4,7 @@ package ms.cms.plugin.mgmt;
  * AssetManagementPlugin
  * Created by bazzoni on 06/05/2015.
  */
-public interface AssetManagementPlugin<T> extends Plugin {
+public interface AssetManagementPlugin<C, A> extends Plugin {
     /**
      * Creates a base repository container for site
      *
@@ -68,5 +68,19 @@ public interface AssetManagementPlugin<T> extends Plugin {
      * @param siteId siteId
      * @return site repository
      */
-    T findSiteRepository(String siteId);
+    C findSiteRepository(String siteId);
+    /**
+     * Find a site Repository
+     *
+     * @param siteId siteId
+     * @return site repository
+     */
+    C findFolder(String siteId, String path);
+    /**
+     * Find a site Repository
+     *
+     * @param siteId siteId
+     * @return site repository
+     */
+    A findAsset(String siteId, String nodeId);
 }

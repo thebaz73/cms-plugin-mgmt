@@ -13,7 +13,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 @Component
-public class DummyAssetManagementPlugin extends PluginImpl implements AssetManagementPlugin<HashMap<String, Object>> {
+public class DummyAssetManagementPlugin extends PluginImpl implements AssetManagementPlugin<HashMap<String, Object>, Object> {
     private final Map<String, Object> repository = new HashMap<>();
 
     public Map<String, Object> getRepository() {
@@ -131,6 +131,41 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
     @Override
     public HashMap<String, Object> findSiteRepository(String siteId) {
         return (HashMap<String, Object>) repository.get(siteId);
+    }
+
+    /**
+     * Find a site Repository
+     *
+     * @param siteId siteId
+     * @param path path
+     * @return site repository
+     */
+    @Override
+    public HashMap<String, Object> findFolder(String siteId, String path) {
+        HashMap<String, Object> siteRepo = (HashMap<String, Object>) repository.get(siteId);
+        return (HashMap<String, Object>) siteRepo.get(path);
+    }
+
+    /**
+     * Find a site Repository
+     *
+     * @param siteId siteId
+     * @param nodeId node id
+     * @return site repository
+     */
+    @Override
+    public Object findAsset(String siteId, String nodeId) {
+        HashMap<String, Object> siteRepo = (HashMap<String, Object>) repository.get(siteId);
+        HashMap<String, Object> folderRepo;
+        if(nodeId.contains("/")) {
+            String[] tokens = nodeId.split("/");
+            folderRepo = (HashMap<String, Object>) siteRepo.get(tokens[0]);
+            return folderRepo.get(tokens[1]);
+        }
+        else {
+            folderRepo = siteRepo;
+            return folderRepo.get(nodeId);
+        }
     }
 
 
