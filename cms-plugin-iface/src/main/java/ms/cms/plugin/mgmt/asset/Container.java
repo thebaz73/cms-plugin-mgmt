@@ -8,7 +8,7 @@ public interface Container {
     /**
      * Checks if container as children
      *
-     * @return true is children number &gt; 1
+     * @return true is children number &gt; 0
      */
     boolean hasChildren();
 

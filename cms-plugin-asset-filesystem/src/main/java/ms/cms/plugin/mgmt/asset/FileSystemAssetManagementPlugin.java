@@ -35,13 +35,12 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
      */
     @Override
     public void deleteSiteRepository(String siteId) throws PluginOperationException {
-        for (String child : baseFolder.list()) {
-            if (child.equals(siteId)) {
-                FileContainer siteRepository = new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId).toUri());
-                if (!siteRepository.delete()) {
-                    throw new PluginOperationException(String.format("Cannot delete repository:%s", siteRepository.getAbsolutePath()));
-                }
-            }
+        FileContainer siteRepository = new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId).toUri());
+
+        if (siteRepository.hasChildren()) return;
+
+        if (!siteRepository.delete()) {
+            throw new PluginOperationException(String.format("Cannot delete repository:%s", siteRepository.getAbsolutePath()));
         }
     }
 
@@ -70,6 +69,8 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
     @Override
     public void deleteFolder(String siteId, String nodeId) throws PluginOperationException {
         FileContainer folder = new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId, nodeId).toUri());
+
+        if (folder.hasChildren()) return;
 
         if (!folder.delete()) {
             throw new PluginOperationException(String.format("Cannot delete repository:%s", folder.getAbsolutePath()));

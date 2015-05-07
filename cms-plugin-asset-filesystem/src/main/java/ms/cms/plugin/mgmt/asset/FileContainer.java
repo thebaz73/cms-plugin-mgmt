@@ -51,11 +51,11 @@ public class FileContainer extends File implements Container {
     /**
      * Checks if container as children
      *
-     * @return true is children number &gt; 1
+     * @return true is children number &gt; 0
      */
     @Override
     public boolean hasChildren() {
-        return list().length > 1;
+        return list().length > 0;
     }
 
     /**
