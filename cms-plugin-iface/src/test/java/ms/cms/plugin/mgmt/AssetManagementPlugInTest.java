@@ -33,7 +33,7 @@ public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
     @Autowired
     private AssetManagementPlugin plugin;
 
-    private DummyContainer repository;
+    private Container repository;
 
     public String getDatabaseName() {
         return "cms-test";
@@ -59,6 +59,7 @@ public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
 
     @Test
     public void testStatus() throws Exception {
+        assertFalse(repository.hasChildren());
         assertFalse(plugin.getId().isEmpty());
         assertEquals("1.0", plugin.getVERSION());
         assertEquals("Dummy Plugin", plugin.getName());
