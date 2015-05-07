@@ -35,6 +35,8 @@ public interface Plugin {
 
     /**
      * Activates plugin
+     *
+     * @throws PluginOperationException if error
      */
-    void doActivate();
+    void doActivate() throws PluginOperationException;
 }

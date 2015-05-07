@@ -3,6 +3,8 @@ package ms.cms.plugin.mgmt;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.WriteConcern;
+import ms.cms.data.CmsSettingRepository;
+import ms.cms.domain.CmsSetting;
 import ms.cms.plugin.mgmt.asset.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +35,9 @@ public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
     @Autowired
     private AssetManagementPlugin plugin;
 
+    @Autowired
+    private CmsSettingRepository cmsSettingRepository;
+
     private Container repository;
 
     public String getDatabaseName() {
@@ -53,6 +58,8 @@ public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
 
     @Before
     public void setUp() throws Exception {
+        cmsSettingRepository.deleteAll();
+        cmsSettingRepository.save(new CmsSetting("dummy.activate", true));
         plugin.doActivate();
         repository = ((DummyAssetManagementPlugin) plugin).getRepository();
     }
@@ -114,7 +121,7 @@ public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
         Container folder = plugin.findFolder(siteId, path);
         assertEquals(1, folder.getChildrenNumber());
 
-        Asset asset = plugin.findAsset(siteId, path + "/" + filename);
+        Asset asset = plugin.findAsset(siteId, path, filename);
         assertNotNull(asset);
         assertEquals(DummyAsset.class, asset.getClass());
         assertEquals("filename", asset.getUri());
@@ -126,8 +133,8 @@ public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
         String siteId = plugin.createSiteRepository(UUID.randomUUID().toString());
         String path = plugin.createFolder(siteId, "folder");
         String filename = plugin.createAsset(siteId, path, "filename", "data".getBytes());
-        plugin.deleteAsset(siteId, path + "/" + filename);
+        plugin.deleteAsset(siteId, path, filename);
 
-        assertNull(plugin.findFolder(siteId, path + "/" + filename));
+        assertNull(plugin.findAsset(siteId, path, filename));
     }
 }

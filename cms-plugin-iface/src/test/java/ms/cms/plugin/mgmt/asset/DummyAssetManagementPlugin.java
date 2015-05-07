@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
  * DummyAssetManagementPlugin
  * Created by bazzoni on 06/05/2015.
  */
-@SuppressWarnings("unchecked")
 @Component
 public class DummyAssetManagementPlugin extends PluginImpl implements AssetManagementPlugin<DummyContainer, DummyAsset> {
     private final DummyContainer repository = new DummyContainer();
@@ -100,21 +99,20 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
      * Deletes an asset
      *
      * @param siteId site id
-     * @param nodeId node id
+     * @param path   internal path
+     * @param name   asset name
      * @throws PluginOperationException if operation failure
      */
     @Override
-    public void deleteAsset(String siteId, String nodeId) throws PluginOperationException {
+    public void deleteAsset(String siteId, String path, String name) throws PluginOperationException {
         DummyContainer siteRepo = (DummyContainer) repository.get(siteId);
         DummyContainer folderRepo;
-        if (nodeId.contains("/")) {
-            String[] tokens = nodeId.split("/");
-            folderRepo = (DummyContainer) siteRepo.get(tokens[0]);
-            folderRepo.remove(tokens[1]);
-        } else {
+        if (path.isEmpty()) {
             folderRepo = siteRepo;
-            folderRepo.remove(nodeId);
+        } else {
+            folderRepo = (DummyContainer) siteRepo.get(path);
         }
+        folderRepo.remove(name);
     }
 
     /**
@@ -145,21 +143,21 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
      * Find a site Repository
      *
      * @param siteId siteId
-     * @param nodeId node id
+     * @param path   internal path
+     * @param name   asset name
      * @return site repository
      */
     @Override
-    public DummyAsset findAsset(String siteId, String nodeId) {
+    public DummyAsset findAsset(String siteId, String path, String name) {
         DummyContainer siteRepo = (DummyContainer) repository.get(siteId);
         DummyContainer folderRepo;
-        if (nodeId.contains("/")) {
-            String[] tokens = nodeId.split("/");
-            folderRepo = (DummyContainer) siteRepo.get(tokens[0]);
-            return (DummyAsset) folderRepo.get(tokens[1]);
-        } else {
+        if (path.isEmpty()) {
             folderRepo = siteRepo;
-            return (DummyAsset) folderRepo.get(nodeId);
+
+        } else {
+            folderRepo = (DummyContainer) siteRepo.get(path);
         }
+        return (DummyAsset) folderRepo.get(name);
     }
 
 

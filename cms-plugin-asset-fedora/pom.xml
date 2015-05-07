@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>cms-plugin-service</artifactId>
+    <artifactId>cms-plugin-asset-fedora</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <dependencies></dependencies>

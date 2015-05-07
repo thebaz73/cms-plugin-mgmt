@@ -60,32 +60,36 @@ public interface AssetManagementPlugin<C extends Container, A extends Asset> ext
      * Deletes an asset
      *
      * @param siteId site id
-     * @param nodeId node id
+     * @param path   internal path
+     * @param name   asset name
      * @throws PluginOperationException if operation failure
      */
-    void deleteAsset(String siteId, String nodeId) throws PluginOperationException;
+    void deleteAsset(String siteId, String path, String name) throws PluginOperationException;
 
     /**
      * Find a site Repository
      *
      * @param siteId siteId
-     * @return site repository
+     * @return site container
      */
     C findSiteRepository(String siteId);
 
     /**
-     * Find a site Repository
+     * Find a folder
      *
      * @param siteId siteId
-     * @return site repository
+     * @param path   internal path
+     * @return folder container
      */
     C findFolder(String siteId, String path);
 
     /**
-     * Find a site Repository
+     * Find asset
      *
      * @param siteId siteId
-     * @return site repository
+     * @param path   internal path
+     * @param name   asset name
+     * @return asset
      */
-    A findAsset(String siteId, String nodeId);
+    A findAsset(String siteId, String path, String name);
 }

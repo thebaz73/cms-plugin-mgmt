@@ -10,8 +10,13 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>cms-plugin-service</artifactId>
+    <artifactId>cms-plugin-asset-filesystem</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <dependencies></dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>ms.cms</groupId>
+            <artifactId>cms-plugin-iface</artifactId>
+        </dependency>
+    </dependencies>
 </project>

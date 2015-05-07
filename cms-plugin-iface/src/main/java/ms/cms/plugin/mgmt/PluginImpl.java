@@ -24,7 +24,7 @@ public abstract class PluginImpl implements Plugin {
     protected String id;
     protected String name;
     protected PluginStatus status;
-    protected List<CmsSetting> settings;
+    //protected List<CmsSetting> settings;
     @Value("classpath:/META-INF/plugin.properties")
     private Resource resource;
     @Autowired
@@ -52,21 +52,25 @@ public abstract class PluginImpl implements Plugin {
 
     /**
      * Activates plugin
+     *
+     * @throws PluginOperationException if error
      */
     @Override
-    public void doActivate() {
+    public void doActivate() throws PluginOperationException {
         status = PluginStatus.INSTALLED;
         try {
             Properties properties = PropertiesLoaderUtils.loadProperties(resource);
-            if (!properties.contains("plugin.id")) {
+            if (!properties.containsKey("plugin.id")) {
                 id = UUID.randomUUID().toString();
             } else {
                 id = properties.getProperty("plugin.id");
             }
             name = properties.getProperty("plugin.name");
-            settings = cmsSettingRepository.findByKey(id);
-            status = PluginStatus.NOT_READY;
-            doValidate();
+
+            if (getSetting("activate", Boolean.class)) {
+                status = PluginStatus.NOT_READY;
+                doValidate();
+            }
         } catch (IOException e) {
             logger.error("Cannot load properties", e);
         }
@@ -74,6 +78,27 @@ public abstract class PluginImpl implements Plugin {
 
     /**
      * Validates plugin
+     *
+     * @throws PluginOperationException if error
      */
-    protected abstract void doValidate();
+    protected abstract void doValidate() throws PluginOperationException;
+
+    /**
+     * Get a setting according the type chosen
+     *
+     * @param key   setting key
+     * @param clazz class parameter
+     * @param <T>   type
+     * @return setting value
+     * @throws PluginOperationException
+     */
+    protected <T> T getSetting(String key, Class<T> clazz) throws PluginOperationException {
+        String compoundKey = String.format("%s.%s", id, key);
+        List<CmsSetting> settings = cmsSettingRepository.findByKey(compoundKey);
+        if (!settings.isEmpty() && settings.get(0).getKey().equals(compoundKey)) {
+            return clazz.cast(settings.get(0).getValue());
+        }
+
+        throw new PluginOperationException("Setting not found");
+    }
 }
