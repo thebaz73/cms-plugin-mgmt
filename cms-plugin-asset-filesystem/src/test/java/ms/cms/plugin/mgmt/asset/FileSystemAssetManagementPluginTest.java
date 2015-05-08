@@ -143,7 +143,7 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
     public void testCreateAsset() throws Exception {
         ByteArrayOutputStream baos = readDataFromClasspath();
         Files.createFile(Paths.get(baseFolder, "me.jpg"));
-        plugin.createAsset(siteId, "folder1/folder2", "img.jpg", baos.toByteArray());
+        plugin.createAsset(siteId, "folder1/folder2", "img.jpg", baos.toByteArray(), "text/plain");
         byte[] created_data = Files.readAllBytes(Paths.get(baseFolder, siteId, "folder1/folder2/img.jpg"));
         assertArrayEquals(created_data, baos.toByteArray());
     }
@@ -152,7 +152,7 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
     public void testDeleteAsset() throws Exception {
         ByteArrayOutputStream baos = readDataFromClasspath();
         Files.createFile(Paths.get(baseFolder, "me.jpg"));
-        plugin.createAsset(siteId, "folder1/folder2", "img.jpg", baos.toByteArray());
+        plugin.createAsset(siteId, "folder1/folder2", "img.jpg", baos.toByteArray(), "text/plain");
         assertTrue(Paths.get(baseFolder, siteId, "folder1/folder2/img.jpg").toFile().exists());
         plugin.deleteAsset(siteId, "folder1/folder2", "img.jpg");
         assertFalse(Paths.get(baseFolder, siteId, "folder1/folder2/img.jpg").toFile().exists());

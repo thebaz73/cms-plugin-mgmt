@@ -116,7 +116,7 @@ public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
     public void testCreateAsset() throws Exception {
         String siteId = plugin.createSiteRepository(UUID.randomUUID().toString());
         String path = plugin.createFolder(siteId, "folder");
-        String filename = plugin.createAsset(siteId, path, "filename", "data".getBytes());
+        String filename = plugin.createAsset(siteId, path, "filename", "data".getBytes(), "text/plain");
 
         Container folder = plugin.findFolder(siteId, path);
         assertTrue(folder.hasChildren());
@@ -132,7 +132,7 @@ public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
     public void testDeleteAsset() throws Exception {
         String siteId = plugin.createSiteRepository(UUID.randomUUID().toString());
         String path = plugin.createFolder(siteId, "folder");
-        String filename = plugin.createAsset(siteId, path, "filename", "data".getBytes());
+        String filename = plugin.createAsset(siteId, path, "filename", "data".getBytes(), "text/plain");
         plugin.deleteAsset(siteId, path, filename);
 
         assertNull(plugin.findAsset(siteId, path, filename));

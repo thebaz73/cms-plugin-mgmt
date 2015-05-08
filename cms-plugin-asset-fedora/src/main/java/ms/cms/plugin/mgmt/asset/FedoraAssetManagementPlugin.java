@@ -12,6 +12,7 @@ import org.fcrepo.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Map;
@@ -39,7 +40,12 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
      */
     @Override
     public String createSiteRepository(String siteId) throws PluginOperationException {
-        return null;
+        try {
+            FedoraObject fedoraObject = createObject(siteId);
+            return fedoraObject.getPath();
+        } catch (FedoraException e) {
+            throw new PluginOperationException("Fedora Repository related error.", e);
+        }
     }
 
     /**
@@ -50,7 +56,11 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
      */
     @Override
     public void deleteSiteRepository(String siteId) throws PluginOperationException {
-
+        try {
+            findOrCreateObject(siteId).delete();
+        } catch (FedoraException e) {
+            throw new PluginOperationException("Fedora Repository related error.", e);
+        }
     }
 
     /**
@@ -63,19 +73,28 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
      */
     @Override
     public String createFolder(String siteId, String path) throws PluginOperationException {
-        return null;
+        try {
+            FedoraObject fedoraObject = createObject(siteId + "/" + path);
+            return fedoraObject.getPath();
+        } catch (FedoraException e) {
+            throw new PluginOperationException("Fedora Repository related error.", e);
+        }
     }
 
     /**
      * Deletes a folder
      *
      * @param siteId site id
-     * @param nodeId node id
+     * @param path internal path
      * @throws PluginOperationException if operation failure
      */
     @Override
-    public void deleteFolder(String siteId, String nodeId) throws PluginOperationException {
-
+    public void deleteFolder(String siteId, String path) throws PluginOperationException {
+        try {
+            findOrCreateObject(siteId + "/" + path).delete();
+        } catch (FedoraException e) {
+            throw new PluginOperationException("Fedora Repository related error.", e);
+        }
     }
 
     /**
@@ -85,12 +104,20 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
      * @param path   internal path
      * @param name   asset name
      * @param data   asset data
+     * @param contentType content type
      * @return asset path
      * @throws PluginOperationException if operation failure
      */
     @Override
-    public String createAsset(String siteId, String path, String name, byte[] data) throws PluginOperationException {
-        return null;
+    public String createAsset(String siteId, String path, String name, byte[] data, String contentType) throws PluginOperationException {
+        try {
+            FedoraContent content = new FedoraContent().setContent(new ByteArrayInputStream(data))
+                    .setContentType(contentType);
+            FedoraDatastream datastream = createDatastream(siteId + "/" + path + "/" + name, content);
+            return datastream.getName();
+        } catch (FedoraException e) {
+            throw new PluginOperationException("Fedora Repository related error.", e);
+        }
     }
 
     /**
@@ -103,7 +130,11 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
      */
     @Override
     public void deleteAsset(String siteId, String path, String name) throws PluginOperationException {
-
+        try {
+            findOrCreateDatastream(siteId + "/" + path + "/" + name).delete();
+        } catch (FedoraException e) {
+            throw new PluginOperationException("Fedora Repository related error.", e);
+        }
     }
 
     /**
@@ -111,10 +142,15 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
      *
      * @param siteId siteId
      * @return site container
+     * @throws PluginOperationException if operation failure
      */
     @Override
-    public FedoraContainer findSiteRepository(String siteId) {
-        return null;
+    public FedoraContainer findSiteRepository(String siteId) throws PluginOperationException {
+        try {
+            return findOrCreateObject(siteId);
+        } catch (FedoraException e) {
+            throw new PluginOperationException("Fedora Repository related error.", e);
+        }
     }
 
     /**
@@ -123,10 +159,15 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
      * @param siteId siteId
      * @param path   internal path
      * @return folder container
+     * @throws PluginOperationException if operation failure
      */
     @Override
-    public FedoraContainer findFolder(String siteId, String path) {
-        return null;
+    public FedoraContainer findFolder(String siteId, String path) throws PluginOperationException {
+        try {
+            return findOrCreateObject(siteId + "/" + path);
+        } catch (FedoraException e) {
+            throw new PluginOperationException("Fedora Repository related error.", e);
+        }
     }
 
     /**
@@ -136,10 +177,15 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
      * @param path   internal path
      * @param name   asset name
      * @return asset
+     * @throws PluginOperationException if operation failure
      */
     @Override
-    public FedoraAsset findAsset(String siteId, String path, String name) {
-        return null;
+    public FedoraAsset findAsset(String siteId, String path, String name) throws PluginOperationException {
+        try {
+            return findOrCreateDatastream(siteId + "/" + path + "/" + name);
+        } catch (FedoraException e) {
+            throw new PluginOperationException("Fedora Repository related error.", e);
+        }
     }
 
     /**
@@ -191,17 +237,17 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
     }
 
     @Override
-    public FedoraDatastream getDatastream(final String path) throws FedoraException {
-        return (FedoraDatastream) httpHelper.loadProperties(new FedoraDatastreamImpl(this, httpHelper, path));
+    public FedoraAsset getDatastream(final String path) throws FedoraException {
+        return (FedoraAsset) httpHelper.loadProperties(new FedoraAsset(this, httpHelper, path));
     }
 
     @Override
-    public FedoraObject getObject(final String path) throws FedoraException {
-        return (FedoraObject) httpHelper.loadProperties(new FedoraObjectImpl(this, httpHelper, path));
+    public FedoraContainer getObject(final String path) throws FedoraException {
+        return (FedoraContainer) httpHelper.loadProperties(new FedoraContainer(this, httpHelper, path));
     }
 
     @Override
-    public FedoraDatastream createDatastream(final String path, final FedoraContent content) throws FedoraException {
+    public FedoraAsset createDatastream(final String path, final FedoraContent content) throws FedoraException {
         final HttpPut put = httpHelper.createContentPutMethod(path, null, content);
         try {
             final HttpResponse response = httpHelper.execute(put);
@@ -231,7 +277,7 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
     }
 
     @Override
-    public FedoraObject createObject(final String path) throws FedoraException {
+    public FedoraContainer createObject(final String path) throws FedoraException {
         final HttpPut put = httpHelper.createPutMethod(path, null);
         try {
             final HttpResponse response = httpHelper.execute(put);
@@ -261,7 +307,7 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
     }
 
     @Override
-    public FedoraDatastream findOrCreateDatastream(final String path) throws FedoraException {
+    public FedoraAsset findOrCreateDatastream(final String path) throws FedoraException {
         try {
             return getDatastream(path);
         } catch (NotFoundException ex) {
@@ -270,7 +316,7 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
     }
 
     @Override
-    public FedoraObject findOrCreateObject(final String path) throws FedoraException {
+    public FedoraContainer findOrCreateObject(final String path) throws FedoraException {
         try {
             return getObject(path);
         } catch (NotFoundException ex) {

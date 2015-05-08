@@ -39,10 +39,10 @@ public interface AssetManagementPlugin<C extends Container, A extends Asset> ext
      * Deletes a folder
      *
      * @param siteId site id
-     * @param nodeId node id
+     * @param path internal path
      * @throws PluginOperationException if operation failure
      */
-    void deleteFolder(String siteId, String nodeId) throws PluginOperationException;
+    void deleteFolder(String siteId, String path) throws PluginOperationException;
 
     /**
      * Creates an asset for the site and folder
@@ -51,10 +51,11 @@ public interface AssetManagementPlugin<C extends Container, A extends Asset> ext
      * @param path   internal path
      * @param name   asset name
      * @param data   asset data
+     * @param contentType content type
      * @return asset path
      * @throws PluginOperationException if operation failure
      */
-    String createAsset(String siteId, String path, String name, byte[] data) throws PluginOperationException;
+    String createAsset(String siteId, String path, String name, byte[] data, String contentType) throws PluginOperationException;
 
     /**
      * Deletes an asset
@@ -72,7 +73,7 @@ public interface AssetManagementPlugin<C extends Container, A extends Asset> ext
      * @param siteId siteId
      * @return site container
      */
-    C findSiteRepository(String siteId);
+    C findSiteRepository(String siteId) throws PluginOperationException;
 
     /**
      * Find a folder
@@ -81,7 +82,7 @@ public interface AssetManagementPlugin<C extends Container, A extends Asset> ext
      * @param path   internal path
      * @return folder container
      */
-    C findFolder(String siteId, String path);
+    C findFolder(String siteId, String path) throws PluginOperationException;
 
     /**
      * Find asset
@@ -91,5 +92,5 @@ public interface AssetManagementPlugin<C extends Container, A extends Asset> ext
      * @param name   asset name
      * @return asset
      */
-    A findAsset(String siteId, String path, String name);
+    A findAsset(String siteId, String path, String name) throws PluginOperationException;
 }

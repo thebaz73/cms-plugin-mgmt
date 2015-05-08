@@ -99,11 +99,12 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
      * @param path   internal path
      * @param name   asset name
      * @param data   asset data
+     * @param contentType content type
      * @return asset path
      * @throws PluginOperationException if operation failure
      */
     @Override
-    public String createAsset(String siteId, String path, String name, byte[] data) throws PluginOperationException {
+    public String createAsset(String siteId, String path, String name, byte[] data, String contentType) throws PluginOperationException {
         FileContainer folder = new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId, path).toUri());
         FileAsset asset = new FileAsset(folder, name, data);
         return asset.getName();

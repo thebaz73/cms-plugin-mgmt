@@ -14,10 +14,10 @@ import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.StandardHttpRequestRetryHandler;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RiotReader;
@@ -30,7 +30,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -78,13 +77,14 @@ public class HttpHelper {
         this.repositoryURL = repositoryURL;
         this.readOnly = readOnly;
 
-        final PoolingClientConnectionManager connMann = new PoolingClientConnectionManager();
+        final PoolingHttpClientConnectionManager connMann = new PoolingHttpClientConnectionManager();
         connMann.setMaxTotal(MAX_VALUE);
         connMann.setDefaultMaxPerRoute(MAX_VALUE);
 
-        final DefaultHttpClient httpClient = new DefaultHttpClient(connMann);
-        httpClient.setRedirectStrategy(new DefaultRedirectStrategy());
-        httpClient.setHttpRequestRetryHandler(new StandardHttpRequestRetryHandler(0, false));
+        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create()
+                .setConnectionManager(connMann)
+                .setRedirectStrategy(new DefaultRedirectStrategy())
+                .setRetryHandler(new StandardHttpRequestRetryHandler(0, false));
 
         // If the Fedora instance requires authentication, set it up here
         if (!isBlank(fedoraUsername) && !isBlank(fedoraPassword)) {
@@ -95,10 +95,9 @@ public class HttpHelper {
             credsProvider.setCredentials(new AuthScope(fedoraUri.getHost(), fedoraUri.getPort()),
                     new UsernamePasswordCredentials(fedoraUsername, fedoraPassword));
 
-            httpClient.setCredentialsProvider(credsProvider);
+            httpClientBuilder.setDefaultCredentialsProvider(credsProvider);
         }
-
-        this.httpClient = httpClient;
+        this.httpClient = httpClientBuilder.build();
     }
 
     /**
@@ -109,14 +108,13 @@ public class HttpHelper {
     private static String queryString(final Map<String, List<String>> params) {
         final StringBuilder builder = new StringBuilder();
         if (params != null && params.size() > 0) {
-            for (final Iterator<String> it = params.keySet().iterator(); it.hasNext(); ) {
-                final String key = it.next();
+            for (final String key : params.keySet()) {
                 final List<String> values = params.get(key);
                 for (final String value : values) {
                     try {
-                        builder.append(key + "=" + URLEncoder.encode(value, "UTF-8") + "&");
+                        builder.append(key).append("=").append(URLEncoder.encode(value, "UTF-8")).append("&");
                     } catch (final UnsupportedEncodingException e) {
-                        builder.append(key + "=" + value + "&");
+                        builder.append(key).append("=").append(value).append("&");
                     }
                 }
             }

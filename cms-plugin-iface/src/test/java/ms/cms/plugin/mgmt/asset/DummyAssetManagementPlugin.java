@@ -78,11 +78,12 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
      * @param path   internal path
      * @param name   asset  name
      * @param data   asset data
+     * @param contentType content type
      * @return asset path
      * @throws PluginOperationException if operation failure
      */
     @Override
-    public String createAsset(String siteId, String path, String name, byte[] data) throws PluginOperationException {
+    public String createAsset(String siteId, String path, String name, byte[] data, String contentType) throws PluginOperationException {
         DummyContainer siteRepo = (DummyContainer) repository.get(siteId);
         DummyContainer folderRepo;
         if (path.isEmpty()) {
