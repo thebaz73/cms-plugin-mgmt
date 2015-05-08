@@ -2,6 +2,7 @@ package ms.cms.plugin.mgmt.asset;
 
 import com.hp.hpl.jena.graph.Triple;
 import ms.cms.plugin.mgmt.PluginOperationException;
+import ms.cms.plugin.mgmt.PluginStatus;
 import ms.cms.plugin.mgmt.asset.utils.HttpHelper;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -26,6 +27,8 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
 
     protected HttpHelper httpHelper;
     protected String repositoryURL;
+    protected String username;
+    protected String password;
 
     /**
      * Creates a base repository container for site
@@ -146,7 +149,17 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
      */
     @Override
     protected void doValidate() throws PluginOperationException {
+        repositoryURL = getSetting("repositoryUrl", String.class, properties.getProperty("plugin.repositoryURL"));
+        if (repositoryURL.isEmpty()) {
+            throw new PluginOperationException("Cannot define repository URL");
+        }
+        username = getSetting("username", String.class, properties.getProperty("plugin.username"));
+        if (username.isEmpty()) username = null;
+        password = getSetting("password", String.class, properties.getProperty("plugin.password"));
+        if (password.isEmpty()) password = null;
+        this.httpHelper = new HttpHelper(repositoryURL, username, password, false);
 
+        status = PluginStatus.ACTIVE;
     }
 
     @Override

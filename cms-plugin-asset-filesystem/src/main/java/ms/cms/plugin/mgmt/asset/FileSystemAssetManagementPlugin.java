@@ -169,7 +169,7 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
      */
     @Override
     protected void doValidate() throws PluginOperationException {
-        String folderName = getSetting("base.folder.path", String.class);
+        String folderName = getSetting("base.folder.path", String.class, properties.getProperty("plugin.base.folder.path"));
         baseFolder = new FileContainer(Paths.get(folderName).toUri());
         if (!baseFolder.exists()) {
             throw new PluginOperationException(String.format("Cannot create base path: %s", baseFolder.getAbsolutePath()));

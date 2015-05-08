@@ -96,7 +96,7 @@ public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
         String path = plugin.createFolder(siteId, "folder");
 
         Container siteRepository = plugin.findSiteRepository(siteId);
-        assertEquals(1, siteRepository.getChildrenNumber());
+        assertTrue(siteRepository.hasChildren());
 
         Object folder = plugin.findFolder(siteId, path);
         assertNotNull(folder);
@@ -119,13 +119,13 @@ public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
         String filename = plugin.createAsset(siteId, path, "filename", "data".getBytes());
 
         Container folder = plugin.findFolder(siteId, path);
-        assertEquals(1, folder.getChildrenNumber());
+        assertTrue(folder.hasChildren());
 
         Asset asset = plugin.findAsset(siteId, path, filename);
         assertNotNull(asset);
         assertEquals(DummyAsset.class, asset.getClass());
         assertEquals("filename", asset.getUri());
-        assertEquals("data", new String(asset.getContent()));
+        assertEquals("data", new String(((ContentAsset) asset).getContent()));
     }
 
     @Test
