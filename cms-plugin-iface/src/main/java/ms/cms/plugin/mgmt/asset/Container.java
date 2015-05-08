@@ -11,11 +11,4 @@ public interface Container {
      * @return true is children number &gt; 0
      */
     boolean hasChildren();
-
-    /**
-     * Get children number
-     *
-     * @return children number
-     */
-    int getChildrenNumber();
 }
