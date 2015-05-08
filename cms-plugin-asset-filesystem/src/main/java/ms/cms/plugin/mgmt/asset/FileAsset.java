@@ -16,7 +16,7 @@ import java.nio.file.StandardOpenOption;
  * FileAsset
  * Created by bazzoni on 07/05/2015.
  */
-public class FileAsset extends File implements Asset {
+public class FileAsset extends File implements ContentAsset {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private ByteBuffer data;

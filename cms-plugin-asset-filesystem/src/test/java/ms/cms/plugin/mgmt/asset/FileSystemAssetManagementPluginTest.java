@@ -188,7 +188,7 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
         Asset asset = plugin.findAsset(siteId, path, name);
         assertEquals(FileAsset.class, asset.getClass());
         assertTrue(((FileAsset) asset).exists());
-        assertArrayEquals(asset.getContent(), baos.toByteArray());
+        assertArrayEquals(((ContentAsset) asset).getContent(), baos.toByteArray());
     }
 
     private ByteArrayOutputStream readDataFromClasspath() throws IOException {
