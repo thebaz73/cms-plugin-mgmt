@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
@@ -159,17 +160,35 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
 
     @Test
     public void testFindSiteRepository() throws Exception {
-
+        Files.createDirectories(Paths.get(baseFolder, siteId));
+        Container repository = plugin.findSiteRepository(siteId);
+        assertEquals(FileContainer.class, repository.getClass());
+        assertTrue(((FileContainer) repository).exists());
     }
 
     @Test
     public void testFindFolder() throws Exception {
+        String path = "folder1/folder2";
+        String name = "me.jpg";
 
+        Files.createDirectories(Paths.get(baseFolder, siteId, path));
+        ByteArrayOutputStream baos = readDataFromClasspath();
+        Path file = Files.createFile(Paths.get(baseFolder, siteId, path, name));
+        Files.write(file, baos.toByteArray());
+
+        Asset asset = plugin.findAsset(siteId, path, name);
+        assertEquals(FileAsset.class, asset.getClass());
+        assertTrue(((FileAsset) asset).exists());
+        assertArrayEquals(asset.getContent(), baos.toByteArray());
     }
 
     @Test
     public void testFindAsset() throws Exception {
-
+        String path = "folder1/folder2";
+        Files.createDirectories(Paths.get(baseFolder, siteId, path));
+        Container repository = plugin.findFolder(siteId, path);
+        assertEquals(FileContainer.class, repository.getClass());
+        assertTrue(((FileContainer) repository).exists());
     }
 
     private ByteArrayOutputStream readDataFromClasspath() throws IOException {
