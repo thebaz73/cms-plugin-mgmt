@@ -6,13 +6,6 @@ package ms.cms.plugin.mgmt.asset;
  */
 public interface Asset {
     /**
-     * Returns Asset content bytes
-     *
-     * @return content bytes
-     */
-    byte[] getContent();
-
-    /**
      * Get Asset URI
      *
      * @return asset URI
