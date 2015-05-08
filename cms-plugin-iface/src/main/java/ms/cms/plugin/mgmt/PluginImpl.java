@@ -67,7 +67,7 @@ public abstract class PluginImpl implements Plugin {
             }
             name = properties.getProperty("plugin.name");
 
-            if (getSetting("activate", Boolean.class)) {
+            if (getSetting("activate", Boolean.class, false)) {
                 status = PluginStatus.NOT_READY;
                 doValidate();
             }
@@ -92,11 +92,14 @@ public abstract class PluginImpl implements Plugin {
      * @return setting value
      * @throws PluginOperationException
      */
-    protected <T> T getSetting(String key, Class<T> clazz) throws PluginOperationException {
+    protected <T> T getSetting(String key, Class<T> clazz, T defaultValue) throws PluginOperationException {
         String compoundKey = String.format("%s.%s", id, key);
         List<CmsSetting> settings = cmsSettingRepository.findByKey(compoundKey);
         if (!settings.isEmpty() && settings.get(0).getKey().equals(compoundKey)) {
             return clazz.cast(settings.get(0).getValue());
+        }
+        if (defaultValue != null) {
+            return defaultValue;
         }
 
         throw new PluginOperationException("Setting not found");
