@@ -20,10 +20,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
@@ -140,24 +140,21 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
 
     @Test
     public void testCreateAsset() throws Exception {
-        InputStream inputStream = (getClass().getResourceAsStream("/me.jpg"));
-        Files.deleteIfExists(Paths.get(baseFolder, "me.jpg"));
-        Path file = Files.createFile(Paths.get(baseFolder, "me.jpg"));
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte[] b = new byte[1024];
-        while (inputStream.read(b) != -1) {
-            baos.write(b);
-        }
-        Files.write(file, baos.toByteArray());
-        byte[] data = Files.readAllBytes(Paths.get(baseFolder, "me.jpg"));
-        plugin.createAsset(siteId, "folder1/folder2", "img.jpg", data);
+        ByteArrayOutputStream baos = readDataFromClasspath();
+        Files.createFile(Paths.get(baseFolder, "me.jpg"));
+        plugin.createAsset(siteId, "folder1/folder2", "img.jpg", baos.toByteArray());
         byte[] created_data = Files.readAllBytes(Paths.get(baseFolder, siteId, "folder1/folder2/img.jpg"));
         assertArrayEquals(created_data, baos.toByteArray());
     }
 
     @Test
     public void testDeleteAsset() throws Exception {
-
+        ByteArrayOutputStream baos = readDataFromClasspath();
+        Files.createFile(Paths.get(baseFolder, "me.jpg"));
+        plugin.createAsset(siteId, "folder1/folder2", "img.jpg", baos.toByteArray());
+        assertTrue(Paths.get(baseFolder, siteId, "folder1/folder2/img.jpg").toFile().exists());
+        plugin.deleteAsset(siteId, "folder1/folder2", "img.jpg");
+        assertFalse(Paths.get(baseFolder, siteId, "folder1/folder2/img.jpg").toFile().exists());
     }
 
     @Test
@@ -173,5 +170,16 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
     @Test
     public void testFindAsset() throws Exception {
 
+    }
+
+    private ByteArrayOutputStream readDataFromClasspath() throws IOException {
+        InputStream inputStream = (getClass().getResourceAsStream("/me.jpg"));
+        Files.deleteIfExists(Paths.get(baseFolder, "me.jpg"));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] b = new byte[1024];
+        while (inputStream.read(b) != -1) {
+            baos.write(b);
+        }
+        return baos;
     }
 }
