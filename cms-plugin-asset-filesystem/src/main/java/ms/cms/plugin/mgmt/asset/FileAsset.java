@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * FileAsset
@@ -74,19 +76,24 @@ public class FileAsset extends File implements Asset {
     }
 
     private void saveData(byte[] data) {
-        ByteBuffer bb = ByteBuffer.wrap(data);
-
-        try (SeekableByteChannel sbc =
-                     Files.newByteChannel(Paths.get(toURI()))) {
-            sbc.write(bb);
+        Path path = Paths.get(toURI());
+        try {
+            Files.deleteIfExists(path);
+            Files.createFile(path);
+            ByteBuffer bb = ByteBuffer.wrap(data);
+            try (SeekableByteChannel sbc =
+                         Files.newByteChannel(Paths.get(toURI()), StandardOpenOption.WRITE)) {
+                sbc.write(bb);
+            } catch (IOException e) {
+                logger.debug("Cannot load resource", e);
+            }
         } catch (IOException e) {
             logger.debug("Cannot load resource", e);
         }
-
     }
 
     private void loadData() {
-        try (SeekableByteChannel sbc = Files.newByteChannel(Paths.get(toURI()))) {
+        try (SeekableByteChannel sbc = Files.newByteChannel(Paths.get(toURI()), StandardOpenOption.READ)) {
             ByteBuffer buf = ByteBuffer.allocate((int) sbc.size());
             sbc.read(buf);
         } catch (IOException e) {

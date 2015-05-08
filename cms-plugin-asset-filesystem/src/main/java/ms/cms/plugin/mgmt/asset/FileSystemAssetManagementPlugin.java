@@ -4,7 +4,9 @@ import ms.cms.plugin.mgmt.PluginOperationException;
 import ms.cms.plugin.mgmt.PluginStatus;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  * FileSystemAssetManagementPlugin
@@ -70,9 +72,22 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
     public void deleteFolder(String siteId, String nodeId) throws PluginOperationException {
         FileContainer folder = new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId, nodeId).toUri());
 
-        if (folder.hasChildren()) return;
+        Path directory = Paths.get(folder.toURI());
+        try {
+            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
 
-        if (!folder.delete()) {
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
             throw new PluginOperationException(String.format("Cannot delete repository:%s", folder.getAbsolutePath()));
         }
     }

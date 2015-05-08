@@ -18,8 +18,12 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
@@ -130,13 +134,25 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
 
         plugin.createFolder(siteId, "folder1/folder2");
         plugin.deleteFolder(siteId, "folder1");
-        assertTrue(folder2.exists());
-        assertTrue(folder1.exists());
+        assertFalse(folder2.exists());
+        assertFalse(folder1.exists());
     }
 
     @Test
     public void testCreateAsset() throws Exception {
-
+        InputStream inputStream = (getClass().getResourceAsStream("/me.jpg"));
+        Files.deleteIfExists(Paths.get(baseFolder, "me.jpg"));
+        Path file = Files.createFile(Paths.get(baseFolder, "me.jpg"));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] b = new byte[1024];
+        while (inputStream.read(b) != -1) {
+            baos.write(b);
+        }
+        Files.write(file, baos.toByteArray());
+        byte[] data = Files.readAllBytes(Paths.get(baseFolder, "me.jpg"));
+        plugin.createAsset(siteId, "folder1/folder2", "img.jpg", data);
+        byte[] created_data = Files.readAllBytes(Paths.get(baseFolder, siteId, "folder1/folder2/img.jpg"));
+        assertArrayEquals(created_data, baos.toByteArray());
     }
 
     @Test
