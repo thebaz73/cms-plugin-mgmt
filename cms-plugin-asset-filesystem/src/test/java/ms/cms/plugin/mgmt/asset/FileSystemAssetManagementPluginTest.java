@@ -169,6 +169,15 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
     @Test
     public void testFindFolder() throws Exception {
         String path = "folder1/folder2";
+        Files.createDirectories(Paths.get(baseFolder, siteId, path));
+        Container repository = plugin.findFolder(siteId, path);
+        assertEquals(FileContainer.class, repository.getClass());
+        assertTrue(((FileContainer) repository).exists());
+    }
+
+    @Test
+    public void testFindAsset() throws Exception {
+        String path = "folder1/folder2";
         String name = "me.jpg";
 
         Files.createDirectories(Paths.get(baseFolder, siteId, path));
@@ -180,15 +189,6 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
         assertEquals(FileAsset.class, asset.getClass());
         assertTrue(((FileAsset) asset).exists());
         assertArrayEquals(asset.getContent(), baos.toByteArray());
-    }
-
-    @Test
-    public void testFindAsset() throws Exception {
-        String path = "folder1/folder2";
-        Files.createDirectories(Paths.get(baseFolder, siteId, path));
-        Container repository = plugin.findFolder(siteId, path);
-        assertEquals(FileContainer.class, repository.getClass());
-        assertTrue(((FileContainer) repository).exists());
     }
 
     private ByteArrayOutputStream readDataFromClasspath() throws IOException {

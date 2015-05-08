@@ -94,8 +94,8 @@ public class FileAsset extends File implements Asset {
 
     private void loadData() {
         try (SeekableByteChannel sbc = Files.newByteChannel(Paths.get(toURI()), StandardOpenOption.READ)) {
-            ByteBuffer buf = ByteBuffer.allocate((int) sbc.size());
-            sbc.read(buf);
+            data = ByteBuffer.allocate((int) sbc.size());
+            sbc.read(data);
         } catch (IOException e) {
             logger.debug("Cannot load resource", e);
         }
