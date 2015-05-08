@@ -58,16 +58,6 @@ public class FileContainer extends File implements Container {
         return list().length > 0;
     }
 
-    /**
-     * Get children number
-     *
-     * @return children number
-     */
-    @Override
-    public int getChildrenNumber() {
-        return list().length;
-    }
-
     private void loadData() {
         if (!exists()) {
             logger.debug("Creating folder: " + mkdirs());
