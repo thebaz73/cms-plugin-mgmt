@@ -26,7 +26,6 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -40,7 +39,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration(classes = {FileSystemAssetManagementPluginTest.class})
 public class FileSystemAssetManagementPluginTest extends AbstractMongoConfiguration {
     private final String baseFolder = System.getProperty("java.io.tmpdir");
-    private final String siteId = UUID.randomUUID().toString();
+    private final String siteId = "site";
 
     @Autowired
     private AssetManagementPlugin plugin;

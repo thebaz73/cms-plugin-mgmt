@@ -24,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
-import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -37,7 +36,7 @@ import static org.junit.Assert.*;
 @ComponentScan(basePackages = "ms.cms")
 @ContextConfiguration(classes = {FedoraAssetManagementPluginTest.class})
 public class FedoraAssetManagementPluginTest extends AbstractMongoConfiguration {
-    private final String siteId = UUID.randomUUID().toString();
+    private final String siteId = "site";
     private FedoraRepository repository;
 
     @Autowired
@@ -67,7 +66,7 @@ public class FedoraAssetManagementPluginTest extends AbstractMongoConfiguration 
         cmsSettingRepository.save(new CmsSetting("fedora.activate", true));
         cmsSettingRepository.save(new CmsSetting("fedora.repositoryURL", "http://192.168.108.129:8080/rest/"));
         repository = new FedoraRepositoryImpl("http://192.168.108.129:8080/rest/");
-        final FedoraObject root = repository.getObject("");
+        final FedoraObject root = repository.getObject("/");
         for (FedoraResource fedoraResource : root.getChildren(null)) {
             fedoraResource.delete();
         }
@@ -108,7 +107,8 @@ public class FedoraAssetManagementPluginTest extends AbstractMongoConfiguration 
 
     @Test
     public void testDeleteFolder() throws Exception {
-        repository.findOrCreateObject(siteId + "folder1");
+        repository.findOrCreateObject(siteId);
+        repository.findOrCreateObject(siteId + "/folder1");
         plugin.deleteFolder(siteId, "folder1");
         assertFalse(repository.exists(siteId + "/" + "folder1"));
     }
@@ -127,8 +127,9 @@ public class FedoraAssetManagementPluginTest extends AbstractMongoConfiguration 
         ByteArrayOutputStream baos = readDataFromClasspath();
         FedoraContent content = new FedoraContent().setContent(new ByteArrayInputStream(baos.toByteArray()))
                 .setContentType("image/png");
-        FedoraDatastream datastream = repository.createDatastream(siteId + "/folder1/img.png", content);
-        repository.findOrCreateDatastream(siteId + "/folder1/img.png");
+        repository.findOrCreateObject(siteId);
+        repository.findOrCreateObject(siteId + "/" + "folder1");
+        repository.createDatastream(siteId + "/folder1/img.png", content);
         plugin.deleteAsset(siteId, "folder1", "img.png");
         assertFalse(repository.exists(siteId + "/folder1/img.png"));
     }

@@ -29,7 +29,7 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
     public String createSiteRepository(String siteId) throws PluginOperationException {
         try {
             FedoraObject fedoraObject = repository.createObject(siteId);
-            return fedoraObject.getPath();
+            return fedoraObject.getName();
         } catch (FedoraException e) {
             throw new PluginOperationException("Fedora Repository related error.", e);
         }
@@ -61,8 +61,9 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
     @Override
     public String createFolder(String siteId, String path) throws PluginOperationException {
         try {
+            repository.findOrCreateObject(siteId);
             FedoraObject fedoraObject = repository.createObject(siteId + "/" + path);
-            return fedoraObject.getPath();
+            return fedoraObject.getName();
         } catch (FedoraException e) {
             throw new PluginOperationException("Fedora Repository related error.", e);
         }
@@ -100,6 +101,8 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
         try {
             FedoraContent content = new FedoraContent().setContent(new ByteArrayInputStream(data))
                     .setContentType(contentType);
+            repository.findOrCreateObject(siteId);
+            repository.findOrCreateObject(path);
             FedoraDatastream datastream = repository.createDatastream(siteId + "/" + path + "/" + name, content);
             return datastream.getName();
         } catch (FedoraException e) {
@@ -182,7 +185,7 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
      */
     @Override
     protected void doValidate() throws PluginOperationException {
-        String repositoryURL = getSetting("repositoryUrl", String.class, properties.getProperty("plugin.repositoryURL"));
+        String repositoryURL = getSetting("repositoryURL", String.class, properties.getProperty("plugin.repositoryURL"));
         if (repositoryURL.isEmpty()) {
             throw new PluginOperationException("Cannot define repository URL");
         }
