@@ -8,7 +8,9 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import ms.cms.plugin.mgmt.asset.utils.HttpHelper;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -68,8 +70,31 @@ public class FedoraResourceImpl implements FedoraResource {
 
     @Override
     public void delete() throws ReadOnlyException {
-        // TODO Auto-generated method stub
-        throw new NotImplemented("Method delete() is not implemented.");
+        if (!isWritable()) {
+            throw new ReadOnlyException();
+        }
+        final HttpDelete delete = httpHelper.createDeleteMethod(path);
+        final HttpDelete deleteTombstone = httpHelper.createDeleteMethod(String.format("%s/fcr:tombstone", path));
+        try {
+            if (doDelete(delete) == HttpStatus.SC_NO_CONTENT) {
+                doDelete(deleteTombstone);
+            }
+        } catch (IOException e) {
+            logger.debug("Cannot delete", e);
+        } finally {
+            delete.releaseConnection();
+            deleteTombstone.releaseConnection();
+        }
+    }
+
+    private int doDelete(HttpDelete delete) throws IOException, ReadOnlyException {
+        final HttpResponse response = httpHelper.execute(delete);
+        final StatusLine status = response.getStatusLine();
+        if (status.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+            logger.error("error delete resource {}: {} {}", delete.getURI().toString(), status.getStatusCode(), status.getReasonPhrase());
+            throw new IOException("Resource not found");
+        }
+        return status.getStatusCode();
     }
 
     @Override

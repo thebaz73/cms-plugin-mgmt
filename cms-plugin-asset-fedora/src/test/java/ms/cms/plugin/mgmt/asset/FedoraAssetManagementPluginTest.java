@@ -67,7 +67,7 @@ public class FedoraAssetManagementPluginTest extends AbstractMongoConfiguration 
         cmsSettingRepository.save(new CmsSetting("fedora.activate", true));
         cmsSettingRepository.save(new CmsSetting("fedora.repositoryURL", "http://192.168.108.129:8080/rest/"));
         repository = new FedoraRepositoryImpl("http://192.168.108.129:8080/rest/");
-        final FedoraObject root = repository.getObject("/");
+        final FedoraObject root = repository.getObject("");
         for (FedoraResource fedoraResource : root.getChildren(null)) {
             fedoraResource.delete();
         }

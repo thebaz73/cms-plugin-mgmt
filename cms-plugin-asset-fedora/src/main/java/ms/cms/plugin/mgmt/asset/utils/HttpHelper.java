@@ -130,7 +130,7 @@ public class HttpHelper {
         if (readOnly) {
             switch (request.getMethod().toLowerCase()) {
                 case "copy":
-                case "delete":
+                    //case "delete":
                 case "move":
                 case "patch":
                 case "post":
@@ -202,6 +202,16 @@ public class HttpHelper {
      */
     public HttpPut createPutMethod(final String path, final Map<String, List<String>> params) {
         return new HttpPut(repositoryURL + path + queryString(params));
+    }
+
+    /**
+     * Create DELETE method with list of parameters
+     *
+     * @param path   Resource path, relative to repository baseURL
+     * @return DELETE method
+     */
+    public HttpDelete createDeleteMethod(final String path) {
+        return new HttpDelete(repositoryURL + path);
     }
 
     /**
