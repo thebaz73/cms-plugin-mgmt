@@ -11,4 +11,11 @@ public interface Asset {
      * @return asset URI
      */
     String getUri();
+
+    /**
+     * Get content as byte array
+     *
+     * @return byte array
+     */
+    byte[] getContent();
 }

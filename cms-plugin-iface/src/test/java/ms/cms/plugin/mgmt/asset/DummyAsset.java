@@ -4,7 +4,7 @@ package ms.cms.plugin.mgmt.asset;
  * DummyAsset
  * Created by bazzoni on 07/05/2015.
  */
-public class DummyAsset implements ContentAsset {
+public class DummyAsset implements Asset {
     private final String uri;
     private final byte[] data;
 

@@ -44,7 +44,6 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
 
     @Autowired
     private AssetManagementPlugin plugin;
-
     @Autowired
     private CmsSettingRepository cmsSettingRepository;
 
@@ -85,7 +84,7 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
     public void testCreateSiteRepository() throws Exception {
         String repository = plugin.createSiteRepository(siteId);
         File file = Paths.get(baseFolder, siteId).toFile();
-        assertEquals(repository, file.getName());
+        assertEquals(repository, file.getAbsolutePath());
         assertTrue(file.exists());
     }
 
@@ -102,12 +101,12 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
     public void testCreateFolder() throws Exception {
         String repository = plugin.createFolder(siteId, "folder1");
         File folder1 = Paths.get(baseFolder, siteId, "folder1").toFile();
-        assertEquals(repository, folder1.getName());
+        assertEquals(repository, folder1.getAbsolutePath());
         assertTrue(folder1.exists());
 
         repository = plugin.createFolder(siteId, "folder1/folder2");
         File folder2 = Paths.get(baseFolder, siteId, "folder1/folder2").toFile();
-        assertEquals(repository, folder2.getName());
+        assertEquals(repository, folder2.getAbsolutePath());
         assertTrue(folder2.exists());
     }
 
@@ -135,27 +134,27 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
 
         plugin.createFolder(siteId, "folder1/folder2");
         plugin.deleteFolder(siteId, "folder1");
-        assertFalse(folder2.exists());
-        assertFalse(folder1.exists());
+        assertTrue(folder2.exists());
+        assertTrue(folder1.exists());
     }
 
     @Test
     public void testCreateAsset() throws Exception {
         ByteArrayOutputStream baos = readDataFromClasspath();
-        Files.createFile(Paths.get(baseFolder, "me.jpg"));
-        plugin.createAsset(siteId, "folder1/folder2", "img.jpg", baos.toByteArray(), "text/plain");
-        byte[] created_data = Files.readAllBytes(Paths.get(baseFolder, siteId, "folder1/folder2/img.jpg"));
+        Files.createFile(Paths.get(baseFolder, "logo_java.png"));
+        plugin.createAsset(siteId, "folder1/folder2", "img.png", baos.toByteArray(), "image/png");
+        byte[] created_data = Files.readAllBytes(Paths.get(baseFolder, siteId, "folder1/folder2/img.png"));
         assertArrayEquals(created_data, baos.toByteArray());
     }
 
     @Test
     public void testDeleteAsset() throws Exception {
         ByteArrayOutputStream baos = readDataFromClasspath();
-        Files.createFile(Paths.get(baseFolder, "me.jpg"));
-        plugin.createAsset(siteId, "folder1/folder2", "img.jpg", baos.toByteArray(), "text/plain");
-        assertTrue(Paths.get(baseFolder, siteId, "folder1/folder2/img.jpg").toFile().exists());
-        plugin.deleteAsset(siteId, "folder1/folder2", "img.jpg");
-        assertFalse(Paths.get(baseFolder, siteId, "folder1/folder2/img.jpg").toFile().exists());
+        Files.createFile(Paths.get(baseFolder, "logo_java.png"));
+        plugin.createAsset(siteId, "folder1/folder2", "img.png", baos.toByteArray(), "image/png");
+        assertTrue(Paths.get(baseFolder, siteId, "folder1/folder2/img.png").toFile().exists());
+        plugin.deleteAsset(siteId, "folder1/folder2", "img.png");
+        assertFalse(Paths.get(baseFolder, siteId, "folder1/folder2/img.png").toFile().exists());
     }
 
     @Test
@@ -163,7 +162,6 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
         Files.createDirectories(Paths.get(baseFolder, siteId));
         Container repository = plugin.findSiteRepository(siteId);
         assertEquals(FileContainer.class, repository.getClass());
-        assertTrue(((FileContainer) repository).exists());
     }
 
     @Test
@@ -172,13 +170,12 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
         Files.createDirectories(Paths.get(baseFolder, siteId, path));
         Container repository = plugin.findFolder(siteId, path);
         assertEquals(FileContainer.class, repository.getClass());
-        assertTrue(((FileContainer) repository).exists());
     }
 
     @Test
     public void testFindAsset() throws Exception {
         String path = "folder1/folder2";
-        String name = "me.jpg";
+        String name = "logo_java.png";
 
         Files.createDirectories(Paths.get(baseFolder, siteId, path));
         ByteArrayOutputStream baos = readDataFromClasspath();
@@ -187,13 +184,12 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
 
         Asset asset = plugin.findAsset(siteId, path, name);
         assertEquals(FileAsset.class, asset.getClass());
-        assertTrue(((FileAsset) asset).exists());
-        assertArrayEquals(((ContentAsset) asset).getContent(), baos.toByteArray());
+        assertArrayEquals(asset.getContent(), baos.toByteArray());
     }
 
     private ByteArrayOutputStream readDataFromClasspath() throws IOException {
-        InputStream inputStream = (getClass().getResourceAsStream("/me.jpg"));
-        Files.deleteIfExists(Paths.get(baseFolder, "me.jpg"));
+        InputStream inputStream = (getClass().getResourceAsStream("/logo_java.png"));
+        Files.deleteIfExists(Paths.get(baseFolder, "logo_java.png"));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] b = new byte[1024];
         while (inputStream.read(b) != -1) {

@@ -125,7 +125,7 @@ public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
         assertNotNull(asset);
         assertEquals(DummyAsset.class, asset.getClass());
         assertEquals("filename", asset.getUri());
-        assertEquals("data", new String(((ContentAsset) asset).getContent()));
+        assertEquals("data", new String(asset.getContent()));
     }
 
     @Test

@@ -14,7 +14,7 @@ import java.nio.file.attribute.BasicFileAttributes;
  */
 @Component
 public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlugin<FileContainer, FileAsset> {
-    private FileContainer baseFolder;
+    private Path baseFolder;
 
     /**
      * Creates a base repository container for site
@@ -25,8 +25,9 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
      */
     @Override
     public String createSiteRepository(String siteId) throws PluginOperationException {
-        FileContainer siteRepository = new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId).toUri());
-        return siteRepository.getName();
+        final Path path = Paths.get(baseFolder.toString(), siteId);
+        FileContainer container = new FileContainer(path);
+        return container.toString();
     }
 
     /**
@@ -37,12 +38,15 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
      */
     @Override
     public void deleteSiteRepository(String siteId) throws PluginOperationException {
-        FileContainer siteRepository = new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId).toUri());
+        final Path path = Paths.get(baseFolder.toString(), siteId);
+        FileContainer container = new FileContainer(path);
 
-        if (siteRepository.hasChildren()) return;
+        if (container.hasChildren()) return;
 
-        if (!siteRepository.delete()) {
-            throw new PluginOperationException(String.format("Cannot delete repository:%s", siteRepository.getAbsolutePath()));
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            throw new PluginOperationException(String.format("Cannot delete repository:%s", path));
         }
     }
 
@@ -56,25 +60,27 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
      */
     @Override
     public String createFolder(String siteId, String path) throws PluginOperationException {
-        FileContainer folder = new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId, path).toUri());
-
-        return folder.getName();
+        final Path folder = Paths.get(baseFolder.toString(), siteId, path);
+        FileContainer container = new FileContainer(folder);
+        return container.toString();
     }
 
     /**
      * Deletes a folder
      *
      * @param siteId site id
-     * @param nodeId node id
+     * @param path internal path
      * @throws PluginOperationException if operation failure
      */
     @Override
-    public void deleteFolder(String siteId, String nodeId) throws PluginOperationException {
-        FileContainer folder = new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId, nodeId).toUri());
+    public void deleteFolder(String siteId, String path) throws PluginOperationException {
+        final Path folder = Paths.get(baseFolder.toString(), siteId, path);
+        FileContainer container = new FileContainer(folder);
 
-        Path directory = Paths.get(folder.toURI());
+        if (container.hasChildren()) return;
+
         try {
-            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     Files.delete(file);
@@ -88,7 +94,7 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
                 }
             });
         } catch (IOException e) {
-            throw new PluginOperationException(String.format("Cannot delete repository:%s", folder.getAbsolutePath()));
+            throw new PluginOperationException(String.format("Cannot delete repository:%s", folder));
         }
     }
 
@@ -105,9 +111,11 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
      */
     @Override
     public String createAsset(String siteId, String path, String name, byte[] data, String contentType) throws PluginOperationException {
-        FileContainer folder = new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId, path).toUri());
-        FileAsset asset = new FileAsset(folder, name, data);
-        return asset.getName();
+        final Path folder = Paths.get(baseFolder.toString(), siteId, path);
+        FileContainer container = new FileContainer(folder);
+        final Path file = Paths.get(container.toString(), name);
+        FileAsset asset = new FileAsset(file, data);
+        return asset.toString();
     }
 
     /**
@@ -120,10 +128,14 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
      */
     @Override
     public void deleteAsset(String siteId, String path, String name) throws PluginOperationException {
-        FileContainer folder = new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId, path).toUri());
-        FileAsset asset = new FileAsset(folder, name, null);
-        if (!asset.delete()) {
-            throw new PluginOperationException(String.format("Cannot delete repository:%s", asset.getAbsolutePath()));
+        final Path folder = Paths.get(baseFolder.toString(), siteId, path);
+        FileContainer container = new FileContainer(folder);
+        final Path file = Paths.get(container.toString(), name);
+        FileAsset asset = new FileAsset(file);
+        try {
+            Files.delete(file);
+        } catch (IOException e) {
+            throw new PluginOperationException(String.format("Cannot delete repository:%s", asset.toString()));
         }
     }
 
@@ -135,7 +147,7 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
      */
     @Override
     public FileContainer findSiteRepository(String siteId) {
-        return new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId).toUri());
+        return new FileContainer(Paths.get(baseFolder.toString(), siteId));
     }
 
     /**
@@ -147,7 +159,7 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
      */
     @Override
     public FileContainer findFolder(String siteId, String path) {
-        return new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId, path).toUri());
+        return new FileContainer(Paths.get(baseFolder.toString(), siteId, path));
     }
 
     /**
@@ -160,7 +172,7 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
      */
     @Override
     public FileAsset findAsset(String siteId, String path, String name) {
-        return new FileAsset(new FileContainer(Paths.get(baseFolder.getAbsolutePath(), siteId, path).toUri()), name, null);
+        return new FileAsset(Paths.get(baseFolder.toString(), siteId, path, name));
     }
 
     /**
@@ -171,9 +183,9 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
     @Override
     protected void doValidate() throws PluginOperationException {
         String folderName = getSetting("base.folder.path", String.class, properties.getProperty("plugin.base.folder.path"));
-        baseFolder = new FileContainer(Paths.get(folderName).toUri());
-        if (!baseFolder.exists()) {
-            throw new PluginOperationException(String.format("Cannot create base path: %s", baseFolder.getAbsolutePath()));
+        baseFolder = Paths.get(folderName);
+        if (Files.notExists(baseFolder)) {
+            throw new PluginOperationException(String.format("Cannot create base path: %s", baseFolder));
         }
         status = PluginStatus.ACTIVE;
     }
