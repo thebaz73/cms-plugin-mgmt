@@ -73,10 +73,10 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.fcrepo</groupId>
             <artifactId>fcrepo-kernel</artifactId>
