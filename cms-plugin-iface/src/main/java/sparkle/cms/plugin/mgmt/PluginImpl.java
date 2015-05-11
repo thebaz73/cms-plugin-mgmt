@@ -3,12 +3,12 @@ package sparkle.cms.plugin.mgmt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import sparkle.cms.data.CmsSettingRepository;
 import sparkle.cms.domain.CmsSetting;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,26 +29,12 @@ public abstract class PluginImpl implements Plugin {
     protected Properties properties;
     protected List<CmsSetting> settings;
     protected String filter;
-    @Value("classpath:/META-INF/plugin.properties")
-    private Resource resource;
     @Autowired
     private CmsSettingRepository cmsSettingRepository;
 
     public PluginImpl() {
         settings = new ArrayList<>();
-        try {
-            initialize();
-        } catch (PluginOperationException e) {
-            logger.error("Cannot initialize properties", e);
-        }
     }
-
-    /**
-     * Initialize plugin settings
-     *
-     * @throws PluginOperationException if error
-     */
-    protected abstract void initialize() throws PluginOperationException;
 
     @Override
     public String getId() {
@@ -81,6 +67,13 @@ public abstract class PluginImpl implements Plugin {
     }
 
     /**
+     * Get spring initialized resource
+     *
+     * @return resource
+     */
+    public abstract Resource getResource();
+
+    /**
      * Activates plugin
      *
      * @throws PluginOperationException if error
@@ -88,23 +81,39 @@ public abstract class PluginImpl implements Plugin {
     @Override
     public void doActivate() throws PluginOperationException {
         status = PluginStatus.INSTALLED;
+        if (getSetting("activate", Boolean.class, Boolean.parseBoolean(properties.getProperty("plugin.activate")))) {
+            status = PluginStatus.NOT_READY;
+            doValidate();
+        }
+    }
+
+    /**
+     * Initialize plugin settings
+     *
+     * @throws PluginOperationException if error
+     */
+    @PostConstruct
+    protected void initialize() throws PluginOperationException {
         try {
-            properties = PropertiesLoaderUtils.loadProperties(resource);
+            properties = PropertiesLoaderUtils.loadProperties(getResource());
             if (!properties.containsKey("plugin.id")) {
                 id = UUID.randomUUID().toString();
             } else {
                 id = properties.getProperty("plugin.id");
             }
             name = properties.getProperty("plugin.name");
-
-            if (getSetting("activate", Boolean.class, Boolean.parseBoolean(properties.getProperty("plugin.activate")))) {
-                status = PluginStatus.NOT_READY;
-                doValidate();
-            }
         } catch (IOException e) {
             logger.error("Cannot load properties", e);
         }
+        createSettings();
     }
+
+    /**
+     * Initialize plugin settings
+     *
+     * @throws PluginOperationException if error
+     */
+    protected abstract void createSettings() throws PluginOperationException;
 
     /**
      * Validates plugin

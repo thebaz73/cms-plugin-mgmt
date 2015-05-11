@@ -1,5 +1,7 @@
 package sparkle.cms.plugin.mgmt.asset;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import sparkle.cms.plugin.mgmt.PluginImpl;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
@@ -13,6 +15,18 @@ import sparkle.cms.plugin.mgmt.PluginStatus;
 public class DummyAssetManagementPlugin extends PluginImpl implements AssetManagementPlugin<DummyContainer, DummyAsset> {
     private final DummyContainer repository = new DummyContainer();
 
+    @Value("classpath:/META-INF/plugin.properties")
+    private Resource resource;
+
+    /**
+     * Get spring initialized resource
+     *
+     * @return resource
+     */
+    @Override
+    public Resource getResource() {
+        return resource;
+    }
     public DummyContainer getRepository() {
         return repository;
     }
@@ -162,7 +176,7 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
     }
 
     @Override
-    protected void initialize() {
+    protected void createSettings() {
 
     }
 

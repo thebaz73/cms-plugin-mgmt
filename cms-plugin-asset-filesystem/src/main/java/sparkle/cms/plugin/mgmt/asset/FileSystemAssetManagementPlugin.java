@@ -1,5 +1,7 @@
 package sparkle.cms.plugin.mgmt.asset;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import sparkle.cms.domain.CmsSetting;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
@@ -16,6 +18,19 @@ import java.nio.file.attribute.BasicFileAttributes;
 @Component
 public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlugin<FileContainer, FileAsset> {
     private Path baseFolder;
+
+    @Value("classpath:/META-INF/filesystem-plugin.properties")
+    private Resource resource;
+
+    /**
+     * Get spring initialized resource
+     *
+     * @return resource
+     */
+    @Override
+    public Resource getResource() {
+        return resource;
+    }
 
     /**
      * Creates a base repository container for site
@@ -182,7 +197,7 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
      * @throws PluginOperationException if error
      */
     @Override
-    protected void initialize() throws PluginOperationException {
+    protected void createSettings() throws PluginOperationException {
         settings.add(new CmsSetting(getCompoundKey("activate"), getSetting("activate", Boolean.class, false)));
         settings.add(new CmsSetting(getCompoundKey("base.folder.path"), getSetting("base.folder.path", String.class, properties.getProperty("plugin.base.folder.path"))));
     }

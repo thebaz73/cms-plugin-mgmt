@@ -3,6 +3,8 @@ package sparkle.cms.plugin.mgmt.asset;
 import org.fcrepo.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import sparkle.cms.domain.CmsSetting;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
@@ -18,6 +20,19 @@ import java.io.ByteArrayInputStream;
 public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<FedoraContainer, FedoraAsset> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private FedoraRepository repository;
+
+    @Value("classpath:/META-INF/fedora-plugin.properties")
+    private Resource resource;
+
+    /**
+     * Get spring initialized resource
+     *
+     * @return resource
+     */
+    @Override
+    public Resource getResource() {
+        return resource;
+    }
 
     /**
      * Creates a base repository container for site
@@ -185,7 +200,7 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
      * @throws PluginOperationException if error
      */
     @Override
-    protected void initialize() throws PluginOperationException {
+    protected void createSettings() throws PluginOperationException {
         settings.add(new CmsSetting(getCompoundKey("activate"), getSetting("activate", Boolean.class, false)));
         settings.add(new CmsSetting(getCompoundKey("repositoryURL"), getSetting("repositoryURL", String.class, "<change me>")));
         settings.add(new CmsSetting(getCompoundKey("username"), getSetting("username", String.class, "<change me>")));
