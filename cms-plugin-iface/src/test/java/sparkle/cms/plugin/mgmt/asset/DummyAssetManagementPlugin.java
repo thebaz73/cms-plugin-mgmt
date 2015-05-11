@@ -161,6 +161,10 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
         return (DummyAsset) folderRepo.get(name);
     }
 
+    @Override
+    protected void initialize() {
+
+    }
 
     /**
      * Validates plugin

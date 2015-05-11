@@ -4,6 +4,7 @@ import org.fcrepo.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import sparkle.cms.domain.CmsSetting;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
 import sparkle.cms.plugin.mgmt.PluginStatus;
 
@@ -179,6 +180,19 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
     }
 
     /**
+     * Initialize plugin settings
+     *
+     * @throws PluginOperationException if error
+     */
+    @Override
+    protected void initialize() throws PluginOperationException {
+        settings.add(new CmsSetting(getCompoundKey("activate"), getSetting("activate", Boolean.class, false)));
+        settings.add(new CmsSetting(getCompoundKey("repositoryURL"), getSetting("repositoryURL", String.class, "<change me>")));
+        settings.add(new CmsSetting(getCompoundKey("username"), getSetting("username", String.class, "<change me>")));
+        settings.add(new CmsSetting(getCompoundKey("password"), getSetting("password", String.class, "<change me>")));
+    }
+
+    /**
      * Validates plugin
      *
      * @throws PluginOperationException if error
@@ -189,13 +203,14 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
         if (repositoryURL.isEmpty()) {
             throw new PluginOperationException("Cannot define repository URL");
         }
-        String username = getSetting("username", String.class, properties.getProperty("plugin.username"));
-        if (username.isEmpty()) username = null;
-        String password = getSetting("password", String.class, properties.getProperty("plugin.password"));
-        if (password.isEmpty()) password = null;
+        String username = getSetting("username", String.class, properties.getProperty("username"));
+        if (username.isEmpty() || username.equals("<change me>")) username = null;
+        String password = getSetting("password", String.class, properties.getProperty("password"));
+        if (password.isEmpty() || password.equals("<change me>")) password = null;
 
-        this.repository = new FedoraRepositoryImpl(repositoryURL, username, password);
-
-        status = PluginStatus.ACTIVE;
+        if (!repositoryURL.isEmpty() && !repositoryURL.equals("<change me>")) {
+            this.repository = new FedoraRepositoryImpl(repositoryURL, username, password);
+            status = PluginStatus.ACTIVE;
+        }
     }
 }

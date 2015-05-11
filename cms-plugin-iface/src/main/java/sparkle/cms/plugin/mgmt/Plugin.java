@@ -1,5 +1,9 @@
 package sparkle.cms.plugin.mgmt;
 
+import sparkle.cms.domain.CmsSetting;
+
+import java.util.List;
+
 /**
  * Plugin
  * Created by bazzoni on 06/05/2015.
@@ -32,6 +36,20 @@ public interface Plugin {
      * @return VERSION
      */
     String getVERSION();
+
+    /**
+     * Get Settings
+     *
+     * @return plugin settings
+     */
+    List<CmsSetting> getSettings();
+
+    /**
+     * Set filter
+     *
+     * @param filter filter
+     */
+    void setFilter(String filter);
 
     /**
      * Activates plugin

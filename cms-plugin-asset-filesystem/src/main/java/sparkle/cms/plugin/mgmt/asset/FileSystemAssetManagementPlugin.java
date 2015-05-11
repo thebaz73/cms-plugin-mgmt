@@ -1,6 +1,7 @@
 package sparkle.cms.plugin.mgmt.asset;
 
 import org.springframework.stereotype.Component;
+import sparkle.cms.domain.CmsSetting;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
 import sparkle.cms.plugin.mgmt.PluginStatus;
 
@@ -176,6 +177,17 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
     }
 
     /**
+     * Initialize plugin settings
+     *
+     * @throws PluginOperationException if error
+     */
+    @Override
+    protected void initialize() throws PluginOperationException {
+        settings.add(new CmsSetting(getCompoundKey("activate"), getSetting("activate", Boolean.class, false)));
+        settings.add(new CmsSetting(getCompoundKey("base.folder.path"), getSetting("base.folder.path", String.class, properties.getProperty("plugin.base.folder.path"))));
+    }
+
+    /**
      * Validates plugin
      *
      * @throws PluginOperationException if error
@@ -185,7 +197,7 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
         String folderName = getSetting("base.folder.path", String.class, properties.getProperty("plugin.base.folder.path"));
         baseFolder = Paths.get(folderName);
         if (Files.notExists(baseFolder)) {
-            throw new PluginOperationException(String.format("Cannot create base path: %s", baseFolder));
+            throw new PluginOperationException(String.format("Invalid base path: %s", baseFolder));
         }
         status = PluginStatus.ACTIVE;
     }

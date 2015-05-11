@@ -10,6 +10,7 @@ import sparkle.cms.data.CmsSettingRepository;
 import sparkle.cms.domain.CmsSetting;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -26,11 +27,28 @@ public abstract class PluginImpl implements Plugin {
     protected String name;
     protected PluginStatus status;
     protected Properties properties;
-    //protected List<CmsSetting> settings;
+    protected List<CmsSetting> settings;
+    protected String filter;
     @Value("classpath:/META-INF/plugin.properties")
     private Resource resource;
     @Autowired
     private CmsSettingRepository cmsSettingRepository;
+
+    public PluginImpl() {
+        settings = new ArrayList<>();
+        try {
+            initialize();
+        } catch (PluginOperationException e) {
+            logger.error("Cannot initialize properties", e);
+        }
+    }
+
+    /**
+     * Initialize plugin settings
+     *
+     * @throws PluginOperationException if error
+     */
+    protected abstract void initialize() throws PluginOperationException;
 
     @Override
     public String getId() {
@@ -50,6 +68,16 @@ public abstract class PluginImpl implements Plugin {
     @Override
     public String getVERSION() {
         return VERSION;
+    }
+
+    @Override
+    public List<CmsSetting> getSettings() {
+        return settings;
+    }
+
+    @Override
+    public void setFilter(String filter) {
+        this.filter = filter;
     }
 
     /**
@@ -95,8 +123,8 @@ public abstract class PluginImpl implements Plugin {
      * @throws PluginOperationException
      */
     protected <T> T getSetting(String key, Class<T> clazz, T defaultValue) throws PluginOperationException {
-        String compoundKey = String.format("%s.%s", id, key);
-        List<CmsSetting> settings = cmsSettingRepository.findByKey(compoundKey);
+        String compoundKey = getCompoundKey(key);
+        List<CmsSetting> settings = cmsSettingRepository.findByKeyAndFilter(compoundKey, filter);
         if (!settings.isEmpty() && settings.get(0).getKey().equals(compoundKey)) {
             return clazz.cast(settings.get(0).getValue());
         }
@@ -105,5 +133,9 @@ public abstract class PluginImpl implements Plugin {
         }
 
         throw new PluginOperationException("Setting not found");
+    }
+
+    protected String getCompoundKey(String key) {
+        return String.format("%s.%s", id, key);
     }
 }
