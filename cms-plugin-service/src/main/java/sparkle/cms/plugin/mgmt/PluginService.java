@@ -54,7 +54,9 @@ public class PluginService {
                     plugin.setFilter(cmsUser.getId());
                     for (CmsSetting cmsSetting : plugin.getSettings()) {
                         cmsSetting.setFilter(cmsUser.getId());
-                        cmsSettingRepository.save(cmsSetting);
+                        if (cmsSettingRepository.findByKeyAndFilter(cmsSetting.getKey(), cmsSetting.getFilter()).isEmpty()) {
+                            cmsSettingRepository.save(cmsSetting);
+                        }
                     }
                 }
             }
