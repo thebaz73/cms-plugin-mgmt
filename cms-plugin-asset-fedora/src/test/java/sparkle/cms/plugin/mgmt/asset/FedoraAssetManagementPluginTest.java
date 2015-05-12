@@ -17,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import sparkle.cms.data.CmsSettingRepository;
 import sparkle.cms.domain.CmsSetting;
+import sparkle.cms.domain.SettingType;
 import sparkle.cms.plugin.mgmt.PluginStatus;
 
 import java.io.ByteArrayInputStream;
@@ -63,8 +64,8 @@ public class FedoraAssetManagementPluginTest extends AbstractMongoConfiguration 
     @Before
     public void setUp() throws Exception {
         cmsSettingRepository.deleteAll();
-        cmsSettingRepository.save(new CmsSetting("fedora.activate", true));
-        cmsSettingRepository.save(new CmsSetting("fedora.repositoryURL", "http://192.168.108.129:8080/rest/"));
+        cmsSettingRepository.save(new CmsSetting("fedora.activate", true, SettingType.BOOL));
+        cmsSettingRepository.save(new CmsSetting("fedora.repositoryURL", "http://192.168.108.129:8080/rest/", SettingType.TEXT));
         repository = new FedoraRepositoryImpl("http://192.168.108.129:8080/rest/");
         final FedoraObject root = repository.getObject("/");
         for (FedoraResource fedoraResource : root.getChildren(null)) {

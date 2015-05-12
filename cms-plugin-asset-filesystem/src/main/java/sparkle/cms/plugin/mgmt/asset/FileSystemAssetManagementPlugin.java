@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import sparkle.cms.domain.CmsSetting;
+import sparkle.cms.domain.SettingType;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
 import sparkle.cms.plugin.mgmt.PluginStatus;
 
@@ -198,8 +199,8 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
      */
     @Override
     protected void createSettings() throws PluginOperationException {
-        settings.add(new CmsSetting(getCompoundKey("activate"), getSetting("activate", Boolean.class, false)));
-        settings.add(new CmsSetting(getCompoundKey("base.folder.path"), getSetting("base.folder.path", String.class, properties.getProperty("plugin.base.folder.path"))));
+        settings.add(new CmsSetting(getCompoundKey("activate"), getSetting("activate", Boolean.class, false), SettingType.BOOL));
+        settings.add(new CmsSetting(getCompoundKey("base.folder.path"), getSetting("base.folder.path", String.class, properties.getProperty("plugin.base.folder.path")), SettingType.TEXT));
     }
 
     /**

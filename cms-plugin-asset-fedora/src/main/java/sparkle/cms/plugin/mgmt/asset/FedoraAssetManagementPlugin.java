@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import sparkle.cms.domain.CmsSetting;
+import sparkle.cms.domain.SettingType;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
 import sparkle.cms.plugin.mgmt.PluginStatus;
 
@@ -201,10 +202,10 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
      */
     @Override
     protected void createSettings() throws PluginOperationException {
-        settings.add(new CmsSetting(getCompoundKey("activate"), getSetting("activate", Boolean.class, false)));
-        settings.add(new CmsSetting(getCompoundKey("repositoryURL"), getSetting("repositoryURL", String.class, "<change me>")));
-        settings.add(new CmsSetting(getCompoundKey("username"), getSetting("username", String.class, "<change me>")));
-        settings.add(new CmsSetting(getCompoundKey("password"), getSetting("password", String.class, "<change me>")));
+        settings.add(new CmsSetting(getCompoundKey("activate"), getSetting("activate", Boolean.class, false), SettingType.BOOL));
+        settings.add(new CmsSetting(getCompoundKey("repositoryURL"), getSetting("repositoryURL", String.class, "<change me>"), SettingType.TEXT));
+        settings.add(new CmsSetting(getCompoundKey("username"), getSetting("username", String.class, "<change me>"), SettingType.TEXT));
+        settings.add(new CmsSetting(getCompoundKey("password"), getSetting("password", String.class, "<change me>"), SettingType.TEXT));
     }
 
     /**

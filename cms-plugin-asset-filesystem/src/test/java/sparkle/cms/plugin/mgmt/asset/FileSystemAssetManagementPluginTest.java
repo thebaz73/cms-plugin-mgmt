@@ -16,6 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import sparkle.cms.data.CmsSettingRepository;
 import sparkle.cms.domain.CmsSetting;
+import sparkle.cms.domain.SettingType;
 import sparkle.cms.plugin.mgmt.PluginStatus;
 
 import java.io.ByteArrayOutputStream;
@@ -65,8 +66,8 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
     @Before
     public void setUp() throws Exception {
         cmsSettingRepository.deleteAll();
-        cmsSettingRepository.save(new CmsSetting("filesystem.activate", true));
-        cmsSettingRepository.save(new CmsSetting("filesystem.base.folder.path", baseFolder));
+        cmsSettingRepository.save(new CmsSetting("filesystem.activate", true, SettingType.BOOL));
+        cmsSettingRepository.save(new CmsSetting("filesystem.base.folder.path", baseFolder, SettingType.TEXT));
         plugin.doActivate();
     }
 

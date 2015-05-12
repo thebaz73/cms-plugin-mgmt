@@ -16,6 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import sparkle.cms.data.CmsSettingRepository;
 import sparkle.cms.domain.CmsSetting;
+import sparkle.cms.domain.SettingType;
 import sparkle.cms.plugin.mgmt.asset.*;
 
 import java.net.UnknownHostException;
@@ -59,7 +60,7 @@ public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
     @Before
     public void setUp() throws Exception {
         cmsSettingRepository.deleteAll();
-        cmsSettingRepository.save(new CmsSetting("dummy.activate", true));
+        cmsSettingRepository.save(new CmsSetting("dummy.activate", true, SettingType.BOOL));
         plugin.doActivate();
         repository = ((DummyAssetManagementPlugin) plugin).getRepository();
     }
