@@ -21,6 +21,7 @@ import sparkle.cms.data.CmsUserRepository;
 import sparkle.cms.domain.CmsRole;
 import sparkle.cms.domain.CmsSetting;
 import sparkle.cms.domain.CmsUser;
+import sparkle.cms.plugin.mgmt.asset.FileSystemAssetManagementPlugin;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -85,14 +86,28 @@ public class PluginServiceTest extends AbstractMongoConfiguration {
 
     @Test
     public void testGetAssetManagementPlugin() throws Exception {
-
+        List<CmsSetting> all = cmsSettingRepository.findAll();
+        assertEquals(0, all.size());
+        pluginService.doSettingAwareReload(true);
+        all = cmsSettingRepository.findAll();
+        assertEquals(6, all.size());
+        all.stream().filter(s -> s.getKey().equals("filesystem.activate")).forEach(s -> {
+            s.setValue(true);
+            cmsSettingRepository.save(s);
+        });
+        all.stream().filter(s -> s.getKey().equals("filesystem.base.folder.path")).forEach(s -> {
+            s.setValue("/temp/");
+            cmsSettingRepository.save(s);
+        });
+        pluginService.doSettingAwareReload(true);
+        assertEquals(FileSystemAssetManagementPlugin.class, pluginService.getAssetManagementPlugin().getClass());
     }
 
     @Test
     public void testReloadPlugins() throws Exception {
         List<CmsSetting> all = cmsSettingRepository.findAll();
         assertEquals(0, all.size());
-        pluginService.reloadPlugins(true);
+        pluginService.doSettingAwareReload(true);
         all = cmsSettingRepository.findAll();
         assertEquals(6, all.size());
 
