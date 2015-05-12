@@ -8,6 +8,7 @@ import sparkle.cms.domain.SettingType;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
 import sparkle.cms.plugin.mgmt.PluginStatus;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -212,11 +213,16 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
     protected void doValidate() throws PluginOperationException {
         String folderName = getSetting("base.folder.path", String.class, properties.getProperty("plugin.base.folder.path"));
         if (!folderName.isEmpty() && !folderName.equals("<change me>")) {
-            baseFolder = Paths.get(folderName);
-            if (Files.notExists(baseFolder)) {
-                throw new PluginOperationException(String.format("Invalid base path: %s", baseFolder));
+            try {
+                String folder = new File(folderName).getCanonicalPath();
+                baseFolder = Paths.get(folder);
+                if (Files.notExists(baseFolder)) {
+                    throw new PluginOperationException(String.format("Invalid base path: %s", baseFolder));
+                }
+                status = PluginStatus.ACTIVE;
+            } catch (IOException e) {
+                //ignore
             }
-            status = PluginStatus.ACTIVE;
         }
     }
 }
