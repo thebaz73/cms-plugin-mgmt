@@ -3,6 +3,7 @@ package sparkle.cms.plugin.mgmt.asset;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.WriteConcern;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +15,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import sparkle.cms.data.CmsSettingRepository;
 import sparkle.cms.domain.CmsSetting;
 import sparkle.cms.domain.SettingType;
@@ -43,7 +45,7 @@ public class FileSystemAssetManagementPluginTest extends AbstractMongoConfigurat
     private final String siteId = "site";
 
     @Autowired
-    private AssetManagementPlugin plugin;
+    private AssetManagementPlugin<? extends Container, ? extends Asset> plugin;
     @Autowired
     private CmsSettingRepository cmsSettingRepository;
 
