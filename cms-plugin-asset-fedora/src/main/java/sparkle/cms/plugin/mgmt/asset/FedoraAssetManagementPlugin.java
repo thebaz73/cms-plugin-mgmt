@@ -1,8 +1,6 @@
 package sparkle.cms.plugin.mgmt.asset;
 
 import org.fcrepo.client.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -19,7 +17,6 @@ import java.io.ByteArrayInputStream;
  */
 @Component
 public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<FedoraContainer, FedoraAsset> {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     private FedoraRepository repository;
 
     @Value("classpath:/META-INF/fedora-plugin.properties")

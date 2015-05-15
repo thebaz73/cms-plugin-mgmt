@@ -18,6 +18,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import sparkle.cms.data.CmsSettingRepository;
 import sparkle.cms.domain.CmsSetting;
 import sparkle.cms.domain.SettingType;
@@ -44,7 +45,7 @@ public class FedoraAssetManagementPluginTest extends AbstractMongoConfiguration 
     private FedoraRepository repository;
 
     @Autowired
-    private AssetManagementPlugin plugin;
+    private AssetManagementPlugin<? extends Container, ? extends Asset> plugin;
     @Autowired
     private CmsSettingRepository cmsSettingRepository;
 

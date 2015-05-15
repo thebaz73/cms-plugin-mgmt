@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 @ContextConfiguration(classes = {AssetManagementPlugInTest.class})
 public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
     @Autowired
-    private AssetManagementPlugin plugin;
+    private AssetManagementPlugin<? extends Container, ? extends Asset> plugin;
 
     @Autowired
     private CmsSettingRepository cmsSettingRepository;

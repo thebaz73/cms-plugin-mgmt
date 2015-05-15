@@ -6,15 +6,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
 import sparkle.cms.data.CmsSettingRepository;
 import sparkle.cms.data.CmsUserRepository;
 import sparkle.cms.domain.CmsSetting;
 import sparkle.cms.domain.CmsUser;
 import sparkle.cms.domain.Role;
+import sparkle.cms.plugin.mgmt.asset.Asset;
 import sparkle.cms.plugin.mgmt.asset.AssetManagementPlugin;
+import sparkle.cms.plugin.mgmt.asset.Container;
 import sparkle.cms.service.AbstractCmsSettingAwareService;
 
 import javax.annotation.PostConstruct;
+
 import java.util.List;
 import java.util.Map;
 
@@ -31,10 +35,10 @@ public class PluginService extends AbstractCmsSettingAwareService {
     private CmsUserRepository cmsUserRepository;
     @Autowired
     private CmsSettingRepository cmsSettingRepository;
-    private AssetManagementPlugin assetManagementPlugin;
+    private AssetManagementPlugin<? extends Container, ? extends Asset> assetManagementPlugin;
     private Map<String, Plugin> pluginMap;
 
-    public AssetManagementPlugin getAssetManagementPlugin() {
+    public AssetManagementPlugin<? extends Container, ? extends Asset> getAssetManagementPlugin() {
         return assetManagementPlugin;
     }
 
@@ -47,7 +51,8 @@ public class PluginService extends AbstractCmsSettingAwareService {
     /**
      * Actually executes reload activities
      */
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     protected void doActualReload() {
         for (Map.Entry<String, Plugin> entry : pluginMap.entrySet()) {
             logger.debug("Processing bean {}", entry.getKey());
@@ -56,7 +61,7 @@ public class PluginService extends AbstractCmsSettingAwareService {
                 plugin.doActivate();
                 if (plugin.getStatus().equals(PluginStatus.ACTIVE)) {
                     if (AssetManagementPlugin.class.isAssignableFrom(plugin.getClass())) {
-                        assetManagementPlugin = (AssetManagementPlugin) plugin;
+                        assetManagementPlugin = (AssetManagementPlugin<? extends Container, ? extends Asset>) plugin;
                     }
                 }
             } catch (PluginOperationException e) {
