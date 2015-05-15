@@ -3,7 +3,10 @@ package sparkle.cms.plugin.mgmt.asset;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.WriteConcern;
-import org.fcrepo.client.*;
+import org.fcrepo.client.FedoraContent;
+import org.fcrepo.client.FedoraObject;
+import org.fcrepo.client.FedoraRepository;
+import org.fcrepo.client.FedoraResource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -117,10 +120,10 @@ public class FedoraAssetManagementPluginTest extends AbstractMongoConfiguration 
     @Test
     public void testCreateAsset() throws Exception {
         ByteArrayOutputStream baos = readDataFromClasspath();
-
         plugin.createAsset(siteId, "folder1", "img.png", baos.toByteArray(), "image/png");
-        final FedoraDatastream datastream = repository.getDatastream(siteId + "/folder1/img.png");
-        assertArrayEquals(new FedoraAsset(datastream).getContent(), baos.toByteArray());
+        assertTrue(repository.exists(siteId + "/folder1/img.png"));
+        final FedoraDatastreamImpl fedoraDatastream = (FedoraDatastreamImpl) repository.findOrCreateDatastream(siteId + "/folder1/img.png");
+        assertEquals("http://192.168.108.129:8080/rest/site/folder1/img.png", new FedoraAsset(fedoraDatastream.getUri()).getUri());
     }
 
     @Test
@@ -129,7 +132,7 @@ public class FedoraAssetManagementPluginTest extends AbstractMongoConfiguration 
         FedoraContent content = new FedoraContent().setContent(new ByteArrayInputStream(baos.toByteArray()))
                 .setContentType("image/png");
         repository.findOrCreateObject(siteId);
-        repository.findOrCreateObject(siteId + "/" + "folder1");
+        repository.findOrCreateObject(siteId + "/folder1");
         repository.createDatastream(siteId + "/folder1/img.png", content);
         plugin.deleteAsset(siteId, "folder1", "img.png");
         assertFalse(repository.exists(siteId + "/folder1/img.png"));
@@ -145,7 +148,8 @@ public class FedoraAssetManagementPluginTest extends AbstractMongoConfiguration 
     @Test
     public void testFindFolder() throws Exception {
         String path = "folder1";
-        repository.createObject(siteId + "/" + path);
+        repository.findOrCreateObject(siteId);
+        repository.findOrCreateObject(siteId + "/folder1");
         Container repository = plugin.findFolder(siteId, path);
         assertEquals(FedoraContainer.class, repository.getClass());
     }
@@ -158,11 +162,13 @@ public class FedoraAssetManagementPluginTest extends AbstractMongoConfiguration 
         ByteArrayOutputStream baos = readDataFromClasspath();
         FedoraContent content = new FedoraContent().setContent(new ByteArrayInputStream(baos.toByteArray()))
                 .setContentType("image/png");
+        repository.findOrCreateObject(siteId);
+        repository.findOrCreateObject(siteId + "/" + path);
         repository.createDatastream(siteId + "/" + path + "/" + name, content);
 
         Asset asset = plugin.findAsset(siteId, path, name);
         assertEquals(FedoraAsset.class, asset.getClass());
-        assertArrayEquals(asset.getContent(), baos.toByteArray());
+        assertEquals("http://192.168.108.129:8080/rest/site/folder1/logo_java.png", asset.getUri());
     }
 
     private ByteArrayOutputStream readDataFromClasspath() throws IOException {

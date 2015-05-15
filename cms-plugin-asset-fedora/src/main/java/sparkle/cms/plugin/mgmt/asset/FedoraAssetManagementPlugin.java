@@ -119,7 +119,7 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
             FedoraContent content = new FedoraContent().setContent(new ByteArrayInputStream(data))
                     .setContentType(contentType);
             repository.findOrCreateObject(siteId);
-            repository.findOrCreateObject(path);
+            repository.findOrCreateObject(siteId + "/" + path);
             FedoraDatastream datastream = repository.createDatastream(siteId + "/" + path + "/" + name, content);
             return datastream.getName();
         } catch (FedoraException e) {
@@ -189,8 +189,10 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
     @Override
     public FedoraAsset findAsset(String siteId, String path, String name) throws PluginOperationException {
         try {
-            return new FedoraAsset(repository.findOrCreateDatastream(siteId + "/" + path + "/" + name));
+            final FedoraDatastreamImpl fedoraDatastream = (FedoraDatastreamImpl) repository.findOrCreateDatastream(siteId + "/" + path + "/" + name);
+            return new FedoraAsset(fedoraDatastream.getUri());
         } catch (FedoraException e) {
+            logger.debug("Fedora Repository related error.", e);
             throw new PluginOperationException("Fedora Repository related error.", e);
         }
     }
@@ -219,9 +221,9 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
         if (repositoryURL.isEmpty()) {
             throw new PluginOperationException("Cannot define repository URL");
         }
-        String username = getSetting("username", String.class, properties.getProperty("username"));
+        String username = getSetting("username", String.class, properties.getProperty("plugin.username"));
         if (username.isEmpty() || username.equals("<change me>")) username = null;
-        String password = getSetting("password", String.class, properties.getProperty("password"));
+        String password = getSetting("password", String.class, properties.getProperty("plugin.password"));
         if (password.isEmpty() || password.equals("<change me>")) password = null;
 
         if (!repositoryURL.isEmpty() && !repositoryURL.equals("<change me>")) {
