@@ -57,4 +57,11 @@ public interface Plugin {
      * @throws PluginOperationException if error
      */
     void doActivate() throws PluginOperationException;
+
+    /**
+     * Executes plugin default tasks
+     *
+     * @throws PluginOperationException if error
+     */
+    void doExecuteDefaultTasks() throws PluginOperationException;
 }

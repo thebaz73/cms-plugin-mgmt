@@ -60,6 +60,7 @@ public class PluginService extends AbstractCmsSettingAwareService {
             try {
                 plugin.doActivate();
                 if (plugin.getStatus().equals(PluginStatus.ACTIVE)) {
+                	plugin.doExecuteDefaultTasks();
                     if (AssetManagementPlugin.class.isAssignableFrom(plugin.getClass())) {
                         assetManagementPlugin = (AssetManagementPlugin<? extends Container, ? extends Asset>) plugin;
                     }
@@ -83,8 +84,8 @@ public class PluginService extends AbstractCmsSettingAwareService {
                 if (cmsUser.getRoles().stream().anyMatch(r -> r.getRole().equals(Role.ROLE_MANAGER))) {
                     plugin.setFilter(cmsUser.getId());
                     for (CmsSetting cmsSetting : plugin.getSettings()) {
-                        cmsSetting.setFilter(cmsUser.getId());
-                        if (cmsSettingRepository.findByKeyAndFilter(cmsSetting.getKey(), cmsSetting.getFilter()).isEmpty()) {
+                        cmsSetting.setUserId(cmsUser.getId());
+                        if (cmsSettingRepository.findByKeyAndUserId(cmsSetting.getKey(), cmsSetting.getUserId()).isEmpty()) {
                             cmsSettingRepository.save(cmsSetting);
                         }
                     }

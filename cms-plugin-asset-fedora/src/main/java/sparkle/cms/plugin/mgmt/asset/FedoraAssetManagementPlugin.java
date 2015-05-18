@@ -189,7 +189,6 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
             final FedoraDatastreamImpl fedoraDatastream = (FedoraDatastreamImpl) repository.findOrCreateDatastream(siteId + "/" + path + "/" + name);
             return new FedoraAsset(fedoraDatastream.getUri());
         } catch (FedoraException e) {
-            logger.debug("Fedora Repository related error.", e);
             throw new PluginOperationException("Fedora Repository related error.", e);
         }
     }

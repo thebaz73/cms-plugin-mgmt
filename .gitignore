@@ -2,5 +2,9 @@
 *.iml
 target/*
 */target/*
-/.settings/
-/.project
+.settings/
+*/.settings/
+.project
+*/.project
+.classpath
+*/.classpath

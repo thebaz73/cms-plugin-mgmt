@@ -30,7 +30,7 @@ public abstract class PluginImpl implements Plugin {
     protected List<CmsSetting> settings;
     protected String filter;
     @Autowired
-    private CmsSettingRepository cmsSettingRepository;
+    protected CmsSettingRepository cmsSettingRepository;
 
     public PluginImpl() {
         settings = new ArrayList<>();
@@ -87,7 +87,7 @@ public abstract class PluginImpl implements Plugin {
         }
     }
 
-    /**
+	/**
      * Initialize plugin settings
      *
      * @throws PluginOperationException if error
@@ -133,7 +133,7 @@ public abstract class PluginImpl implements Plugin {
      */
     protected <T> T getSetting(String key, Class<T> clazz, T defaultValue) throws PluginOperationException {
         String compoundKey = getCompoundKey(key);
-        List<CmsSetting> settings = cmsSettingRepository.findByKeyAndFilter(compoundKey, filter);
+        List<CmsSetting> settings = cmsSettingRepository.findByKeyAndUserId(compoundKey, filter);
         if (!settings.isEmpty() && settings.get(0).getKey().equals(compoundKey)) {
             return clazz.cast(settings.get(0).getValue());
         }

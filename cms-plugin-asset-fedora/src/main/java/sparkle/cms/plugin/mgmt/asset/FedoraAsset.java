@@ -1,15 +1,11 @@
 package sparkle.cms.plugin.mgmt.asset;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * FedoraAsset
  * Created by bazzoni on 08/05/2015.
  */
 public class FedoraAsset implements Asset {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final String uri;
 
     public FedoraAsset(String uri) {

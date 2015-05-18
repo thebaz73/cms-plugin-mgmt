@@ -177,8 +177,16 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
 
     @Override
     protected void createSettings() {
-
     }
+    
+    /**
+     * Executes plugin default tasks
+     *
+     * @throws PluginOperationException if error
+     */
+	@Override
+	public void doExecuteDefaultTasks() throws PluginOperationException {
+	}
 
     /**
      * Validates plugin
