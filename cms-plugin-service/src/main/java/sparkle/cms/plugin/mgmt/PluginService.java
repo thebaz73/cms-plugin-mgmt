@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-
+import sparkle.cms.data.CmsAssetRepository;
 import sparkle.cms.data.CmsSettingRepository;
 import sparkle.cms.data.CmsUserRepository;
 import sparkle.cms.domain.CmsSetting;
@@ -18,7 +18,6 @@ import sparkle.cms.plugin.mgmt.asset.Container;
 import sparkle.cms.service.AbstractCmsSettingAwareService;
 
 import javax.annotation.PostConstruct;
-
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +34,8 @@ public class PluginService extends AbstractCmsSettingAwareService {
     private CmsUserRepository cmsUserRepository;
     @Autowired
     private CmsSettingRepository cmsSettingRepository;
+    @Autowired
+    private CmsAssetRepository cmsAssetRepository;
     private AssetManagementPlugin<? extends Container, ? extends Asset> assetManagementPlugin;
     private Map<String, Plugin> pluginMap;
 
@@ -60,9 +61,13 @@ public class PluginService extends AbstractCmsSettingAwareService {
             try {
                 plugin.doActivate();
                 if (plugin.getStatus().equals(PluginStatus.ACTIVE)) {
-                	plugin.doExecuteDefaultTasks();
+                    plugin.doExecuteDefaultTasks();
                     if (AssetManagementPlugin.class.isAssignableFrom(plugin.getClass())) {
+                        AssetManagementPlugin<? extends Container, ? extends Asset> tmpPlugin = assetManagementPlugin;
                         assetManagementPlugin = (AssetManagementPlugin<? extends Container, ? extends Asset>) plugin;
+                        if (tmpPlugin != assetManagementPlugin) {
+                            cmsAssetRepository.deleteAll();
+                        }
                     }
                 }
             } catch (PluginOperationException e) {
