@@ -223,6 +223,9 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
         if (password.isEmpty() || password.equals("<change me>")) password = null;
 
         if (!repositoryURL.isEmpty() && !repositoryURL.equals("<change me>")) {
+            if (!repositoryURL.endsWith("/")) {
+                repositoryURL = String.format("%s/", repositoryURL);
+            }
             this.repository = new FedoraRepositoryImpl(repositoryURL, username, password);
             status = PluginStatus.ACTIVE;
         }
