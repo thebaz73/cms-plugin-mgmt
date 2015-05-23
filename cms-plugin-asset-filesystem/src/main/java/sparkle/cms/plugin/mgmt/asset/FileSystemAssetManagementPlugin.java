@@ -3,6 +3,7 @@ package sparkle.cms.plugin.mgmt.asset;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import sparkle.cms.domain.CmsAsset;
 import sparkle.cms.domain.CmsSetting;
 import sparkle.cms.domain.SettingType;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
@@ -12,6 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Date;
+
+import static sparkle.cms.plugin.mgmt.asset.AssetUtils.findAssetTypeByFileName;
 
 /**
  * FileSystemAssetManagementPlugin
@@ -222,6 +226,20 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
                 status = PluginStatus.ACTIVE;
             } catch (IOException e) {
                 //ignore
+            }
+        }
+    }
+
+    @Override
+    protected void loadChildren(String siteId, FileContainer siteRepository) throws PluginOperationException {
+        final File site = Paths.get(siteRepository.toString()).toFile();
+        final File[] files = site.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                CmsAsset cmsAsset = new CmsAsset(siteId, file.getName(), new Date(), file.getName(), String.format("%s/%s", siteId, file.getName()));
+                cmsAsset.setType(findAssetTypeByFileName(file.getName()));
+
+                cmsAssetRepository.save(cmsAsset);
             }
         }
     }

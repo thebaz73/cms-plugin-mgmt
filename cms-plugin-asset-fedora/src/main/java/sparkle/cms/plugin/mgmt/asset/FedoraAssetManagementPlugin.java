@@ -4,12 +4,17 @@ import org.fcrepo.client.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import sparkle.cms.domain.CmsAsset;
 import sparkle.cms.domain.CmsSetting;
 import sparkle.cms.domain.SettingType;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
 import sparkle.cms.plugin.mgmt.PluginStatus;
 
 import java.io.ByteArrayInputStream;
+import java.util.Collection;
+import java.util.Date;
+
+import static sparkle.cms.plugin.mgmt.asset.AssetUtils.findAssetTypeByFileName;
 
 /**
  * FedoraAssetManagementPlugin
@@ -228,6 +233,24 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
             }
             this.repository = new FedoraRepositoryImpl(repositoryURL, username, password);
             status = PluginStatus.ACTIVE;
+        }
+    }
+
+    @Override
+    protected void loadChildren(String siteId, FedoraContainer siteRepository) throws PluginOperationException {
+        try {
+            final FedoraObject fedoraObject = repository.findOrCreateObject(siteRepository.toString());
+            final Collection<FedoraResource> children = fedoraObject.getChildren(null);
+            if (children != null) {
+                for (FedoraResource fedoraResource : children) {
+                    CmsAsset cmsAsset = new CmsAsset(siteId, fedoraResource.getName(), new Date(), fedoraResource.getName(), String.format("%s/%s", siteId, fedoraResource.getName()));
+                    cmsAsset.setType(findAssetTypeByFileName(fedoraResource.getName()));
+
+                    cmsAssetRepository.save(cmsAsset);
+                }
+            }
+        } catch (FedoraException e) {
+            throw new PluginOperationException("Fedora Repository related error.", e);
         }
     }
 }

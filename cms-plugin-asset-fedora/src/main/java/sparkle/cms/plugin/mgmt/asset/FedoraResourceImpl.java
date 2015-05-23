@@ -347,4 +347,7 @@ public class FedoraResourceImpl implements FedoraResource {
         }
     }
 
+    public String getUri() {
+        return subject.getURI();
+    }
 }

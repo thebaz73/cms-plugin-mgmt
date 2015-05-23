@@ -31,4 +31,9 @@ public class FedoraContainer implements Container {
             return false;
         }
     }
+
+    @Override
+    public String toString() {
+        return ((FedoraObjectImpl) fedoraObject).getUri();
+    }
 }

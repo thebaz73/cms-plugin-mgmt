@@ -204,8 +204,4 @@ public class FedoraDatastreamImpl extends FedoraResourceImpl implements FedoraDa
 
         return t.getObject();
     }
-
-    public String getUri() {
-        return subject.getURI();
-    }
 }
