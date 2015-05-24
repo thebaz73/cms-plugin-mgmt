@@ -147,7 +147,13 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
     @Override
     public void deleteAsset(String siteId, String path, String name) throws PluginOperationException {
         try {
-            repository.findOrCreateDatastream(siteId + "/" + path + "/" + name).delete();
+            String dataStreamName;
+            if (path.endsWith("/") || path.isEmpty()) {
+                dataStreamName = String.format("%s/%s%s", siteId, path, name);
+            } else {
+                dataStreamName = String.format("%s/%s/%s", siteId, path, name);
+            }
+            repository.findOrCreateDatastream(dataStreamName).delete();
         } catch (FedoraException e) {
             throw new PluginOperationException("Fedora Repository related error.", e);
         }
@@ -198,7 +204,13 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
     @Override
     public FedoraAsset findAsset(String siteId, String path, String name) throws PluginOperationException {
         try {
-            final FedoraDatastreamImpl fedoraDatastream = (FedoraDatastreamImpl) repository.findOrCreateDatastream(siteId + "/" + path + "/" + name);
+            String dataStreamName;
+            if (path.endsWith("/") || path.isEmpty()) {
+                dataStreamName = String.format("%s/%s%s", siteId, path, name);
+            } else {
+                dataStreamName = String.format("%s/%s/%s", siteId, path, name);
+            }
+            final FedoraDatastreamImpl fedoraDatastream = (FedoraDatastreamImpl) repository.findOrCreateDatastream(dataStreamName);
             return new FedoraAsset(fedoraDatastream.getUri());
         } catch (FedoraException e) {
             throw new PluginOperationException("Fedora Repository related error.", e);
