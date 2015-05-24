@@ -258,7 +258,7 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
     @Override
     protected void loadChildren(String siteId, FedoraContainer siteRepository) throws PluginOperationException {
         try {
-            final FedoraObject fedoraObject = repository.findOrCreateObject(siteRepository.toString());
+            final FedoraObject fedoraObject = repository.findOrCreateObject(siteId);
             final Collection<FedoraResource> children = fedoraObject.getChildren(null);
             if (children != null) {
                 for (FedoraResource fedoraResource : children) {
