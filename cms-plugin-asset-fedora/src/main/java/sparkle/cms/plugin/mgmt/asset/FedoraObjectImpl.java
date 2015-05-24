@@ -22,7 +22,7 @@ import static org.fcrepo.kernel.RdfLexicon.HAS_MIXIN_TYPE;
  * Created by bazzoni on 09/05/2015.
  */
 public class FedoraObjectImpl extends FedoraResourceImpl implements FedoraObject {
-    private final static Node binaryType = NodeFactory.createLiteral("fedora:binary");
+    private final static Node containerType = NodeFactory.createLiteral("fedora:Container");
 
     /**
      * FedoraObjectImpl constructor
@@ -52,10 +52,10 @@ public class FedoraObjectImpl extends FedoraResourceImpl implements FedoraObject
             if (mixin == null || graph.contains(child, HAS_MIXIN_TYPE.asNode(), mixinLiteral)) {
                 final String path = child.getURI()
                         .replaceAll(repository.getRepositoryUrl(), "");
-                if (graph.contains(child, HAS_MIXIN_TYPE.asNode(), binaryType)) {
-                    set.add(repository.getDatastream(path));
-                } else {
+                if (graph.contains(child, HAS_MIXIN_TYPE.asNode(), containerType)) {
                     set.add(repository.getObject(path));
+                } else {
+                    set.add(repository.getDatastream(path));
                 }
             }
         }
