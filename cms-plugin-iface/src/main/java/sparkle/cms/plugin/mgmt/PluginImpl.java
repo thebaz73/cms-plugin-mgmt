@@ -25,6 +25,7 @@ public abstract class PluginImpl implements Plugin {
 
     protected String id;
     protected String name;
+    protected PluginType type;
     protected PluginStatus status;
     protected Properties properties;
     protected List<CmsSetting> settings;
@@ -36,31 +37,71 @@ public abstract class PluginImpl implements Plugin {
         settings = new ArrayList<>();
     }
 
+    /**
+     * Get plugin identification code
+     *
+     * @return id
+     */
     @Override
     public String getId() {
         return id;
     }
 
+    /**
+     * Get plugin name
+     *
+     * @return name
+     */
     @Override
     public String getName() {
         return name;
     }
 
+    /**
+     * Get plugin type
+     *
+     * @return type
+     */
+    @Override
+    public PluginType getType() {
+        return type;
+    }
+
+    /**
+     * Get actual status
+     *
+     * @return status
+     */
     @Override
     public PluginStatus getStatus() {
         return status;
     }
 
+    /**
+     * Get VERSION
+     *
+     * @return VERSION
+     */
     @Override
     public String getVERSION() {
         return VERSION;
     }
 
+    /**
+     * Get Settings
+     *
+     * @return plugin settings
+     */
     @Override
     public List<CmsSetting> getSettings() {
         return settings;
     }
 
+    /**
+     * Set filter
+     *
+     * @param filter filter
+     */
     @Override
     public void setFilter(String filter) {
         this.filter = filter;

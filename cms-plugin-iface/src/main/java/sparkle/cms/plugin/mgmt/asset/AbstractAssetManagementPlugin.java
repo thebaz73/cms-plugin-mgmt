@@ -6,6 +6,7 @@ import sparkle.cms.data.CmsSiteRepository;
 import sparkle.cms.domain.CmsSite;
 import sparkle.cms.plugin.mgmt.PluginImpl;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
+import sparkle.cms.plugin.mgmt.PluginType;
 
 import java.util.List;
 
@@ -20,8 +21,12 @@ public abstract class AbstractAssetManagementPlugin<C extends Container, A exten
     @Autowired
     protected CmsAssetRepository cmsAssetRepository;
 
-	@Override
-	public void doExecuteDefaultTasks() throws PluginOperationException {
+    public AbstractAssetManagementPlugin() {
+        type = PluginType.ASSET_MGMT;
+    }
+
+    @Override
+    public void doExecuteDefaultTasks() throws PluginOperationException {
         cmsAssetRepository.deleteAll();
         List<CmsSite> cmsSites = cmsSiteRepository.findAll();
 		for (CmsSite cmsSite : cmsSites) {

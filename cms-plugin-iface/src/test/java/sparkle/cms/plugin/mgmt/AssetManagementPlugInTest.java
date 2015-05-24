@@ -69,6 +69,7 @@ public class AssetManagementPlugInTest extends AbstractMongoConfiguration {
     public void testStatus() throws Exception {
         assertFalse(repository.hasChildren());
         assertFalse(plugin.getId().isEmpty());
+        assertEquals(PluginType.ASSET_MGMT, plugin.getType());
         assertEquals("1.0", plugin.getVERSION());
         assertEquals("Dummy Plugin", plugin.getName());
         assertEquals(PluginStatus.ACTIVE, plugin.getStatus());

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import sparkle.cms.plugin.mgmt.PluginImpl;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
 import sparkle.cms.plugin.mgmt.PluginStatus;
+import sparkle.cms.plugin.mgmt.PluginType;
 
 /**
  * DummyAssetManagementPlugin
@@ -17,6 +18,10 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
 
     @Value("classpath:/META-INF/plugin.properties")
     private Resource resource;
+
+    public DummyAssetManagementPlugin() {
+        type = PluginType.ASSET_MGMT;
+    }
 
     /**
      * Get spring initialized resource

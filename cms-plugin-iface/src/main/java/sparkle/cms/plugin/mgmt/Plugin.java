@@ -24,6 +24,13 @@ public interface Plugin {
     String getName();
 
     /**
+     * Get plugin type
+     *
+     * @return type
+     */
+    PluginType getType();
+
+    /**
      * Get actual status
      *
      * @return status
