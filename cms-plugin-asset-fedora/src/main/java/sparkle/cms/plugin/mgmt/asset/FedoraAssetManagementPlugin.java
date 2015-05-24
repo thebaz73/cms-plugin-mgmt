@@ -124,10 +124,10 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
             repository.findOrCreateObject(siteId + "/" + path);
 
             String dataStreamName;
-            if (path.endsWith("/")) {
-                dataStreamName = siteId + "/" + path + name;
+            if (path.endsWith("/") || path.isEmpty()) {
+                dataStreamName = String.format("%s/%s%s", siteId, path, name);
             } else {
-                dataStreamName = siteId + "/" + path + "/" + name;
+                dataStreamName = String.format("%s/%s/%s", siteId, path, name);
             }
             FedoraDatastream datastream = repository.createDatastream(dataStreamName, content);
             return datastream.getName();
