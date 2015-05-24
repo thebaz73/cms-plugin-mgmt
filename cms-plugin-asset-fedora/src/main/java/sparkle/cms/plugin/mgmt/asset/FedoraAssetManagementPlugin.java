@@ -122,7 +122,14 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
                     .setContentType(contentType);
             repository.findOrCreateObject(siteId);
             repository.findOrCreateObject(siteId + "/" + path);
-            FedoraDatastream datastream = repository.createDatastream(siteId + "/" + path + "/" + name, content);
+
+            String dataStreamName;
+            if (path.endsWith("/")) {
+                dataStreamName = siteId + "/" + path + name;
+            } else {
+                dataStreamName = siteId + "/" + path + "/" + name;
+            }
+            FedoraDatastream datastream = repository.createDatastream(dataStreamName, content);
             return datastream.getName();
         } catch (FedoraException e) {
             throw new PluginOperationException("Fedora Repository related error.", e);
