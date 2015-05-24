@@ -24,7 +24,7 @@ public class AssetUtils {
             assetType = AssetType.IMAGE;
         } else if (contentType.startsWith("audio")) {
             assetType = AssetType.AUDIO;
-        } else if (contentType.startsWith("video")) {
+        } else if (contentType.startsWith("video") || contentType.equals("application/mp4")) {
             assetType = AssetType.VIDEO;
         } else if (contentType.equals("application/msword") || contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
                 contentType.equals("application/vnd.oasis.opendocument.text")) {

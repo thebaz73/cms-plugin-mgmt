@@ -401,6 +401,8 @@ application/vnd.mophun.certificate	mpc
 application/vnd.mophun.application	mpn
 video/mj2	mj2
 audio/mpeg	mpga
+audio/x-mpeg-3	mp3
+audio/mpeg3	mp3
 video/vnd.mpegurl	mxu
 video/mpeg	mpeg
 application/mp21	m21
