@@ -68,7 +68,7 @@ public class FedoraDatastreamImpl extends FedoraResourceImpl implements FedoraDa
     public String getName() {
         final String p = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
         final String[] paths = p.split("/");
-        return paths[paths.length - 2];
+        return paths[paths.length - 1];
     }
 
     @Override
