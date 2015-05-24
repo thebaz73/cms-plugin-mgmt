@@ -48,17 +48,21 @@ public class PluginService extends AbstractCmsSettingAwareService {
 
     /**
      * Actually executes reload activities
+     *
+     * @param force true forces reload assets into repository
      */
     @SuppressWarnings("unchecked")
 	@Override
-    protected void doActualReload() {
+    protected void doActualReload(boolean force) {
         for (Map.Entry<String, Plugin> entry : pluginMap.entrySet()) {
             logger.debug("Processing bean {}", entry.getKey());
             Plugin plugin = entry.getValue();
             try {
                 plugin.doActivate();
                 if (plugin.getStatus().equals(PluginStatus.ACTIVE)) {
-                    plugin.doExecuteDefaultTasks();
+                    if (force) {
+                        plugin.doExecuteDefaultTasks();
+                    }
                     if (AssetManagementPlugin.class.isAssignableFrom(plugin.getClass())) {
                         assetManagementPlugin = (AssetManagementPlugin<? extends Container, ? extends Asset>) plugin;
                     }
