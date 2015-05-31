@@ -61,6 +61,7 @@
         <module>cms-plugin-service</module>
         <module>cms-plugin-asset-filesystem</module>
         <module>cms-plugin-asset-fedora</module>
+        <module>cms-plugin-search-solr</module>
     </modules>
 
     <build>
@@ -150,11 +151,11 @@
                 <artifactId>httpclient</artifactId>
                 <version>${httpclient.version}</version>
             </dependency>
-            <dependency>
+            <!--<dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${org.apache.commons.version}</version>
-            </dependency>
+            </dependency>-->
             <dependency>
                 <groupId>org.fcrepo</groupId>
                 <artifactId>fcrepo-kernel</artifactId>
@@ -220,6 +221,18 @@
                 <groupId>org.webjars</groupId>
                 <artifactId>font-awesome</artifactId>
                 <version>4.2.0</version>
+            </dependency>
+            <!-- Required by embedded solr server -->
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-core</artifactId>
+                <version>${solr.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>slf4j-jdk14</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>

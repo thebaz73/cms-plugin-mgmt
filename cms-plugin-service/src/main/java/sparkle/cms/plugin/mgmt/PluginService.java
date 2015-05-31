@@ -14,6 +14,8 @@ import sparkle.cms.domain.Role;
 import sparkle.cms.plugin.mgmt.asset.Asset;
 import sparkle.cms.plugin.mgmt.asset.AssetManagementPlugin;
 import sparkle.cms.plugin.mgmt.asset.Container;
+import sparkle.cms.plugin.mgmt.search.SearchPlugin;
+import sparkle.cms.plugin.mgmt.search.SparkleDocument;
 import sparkle.cms.service.AbstractCmsSettingAwareService;
 
 import javax.annotation.PostConstruct;
@@ -34,10 +36,16 @@ public class PluginService extends AbstractCmsSettingAwareService {
     @Autowired
     private CmsSettingRepository cmsSettingRepository;
     private AssetManagementPlugin<? extends Container, ? extends Asset> assetManagementPlugin;
+    private SearchPlugin<? extends SparkleDocument> searchPlugin;
+
     private Map<String, Plugin> pluginMap;
 
     public AssetManagementPlugin<? extends Container, ? extends Asset> getAssetManagementPlugin() {
         return assetManagementPlugin;
+    }
+
+    public SearchPlugin<? extends SparkleDocument> getSearchPlugin() {
+        return searchPlugin;
     }
 
     @PostConstruct
@@ -65,6 +73,8 @@ public class PluginService extends AbstractCmsSettingAwareService {
                     }
                     if (AssetManagementPlugin.class.isAssignableFrom(plugin.getClass())) {
                         assetManagementPlugin = (AssetManagementPlugin<? extends Container, ? extends Asset>) plugin;
+                    } else if (SearchPlugin.class.isAssignableFrom(plugin.getClass())) {
+                        searchPlugin = (SearchPlugin<? extends SparkleDocument>) plugin;
                     }
                 }
             } catch (PluginOperationException e) {
