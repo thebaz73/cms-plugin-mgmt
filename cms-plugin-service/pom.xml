@@ -15,11 +15,22 @@
     <dependencies>
         <dependency>
             <groupId>sparkle.cms</groupId>
+            <artifactId>cms-plugin-iface</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>sparkle.cms</groupId>
             <artifactId>cms-plugin-asset-fedora</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>sparkle.cms</groupId>
             <artifactId>cms-plugin-asset-filesystem</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>sparkle.cms</groupId>
+            <artifactId>cms-plugin-search-solr</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
