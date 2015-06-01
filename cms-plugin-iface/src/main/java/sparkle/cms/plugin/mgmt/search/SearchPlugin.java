@@ -10,13 +10,17 @@ import java.util.List;
  */
 public interface SearchPlugin<T extends SparkleDocument> extends Plugin {
     /**
-     * Add a content to index
+     * Update a content in index
      *
-     * @param id      document id
-     * @param name    document name
-     * @param content document content
+     * @param id        document id
+     * @param siteId    document siteId
+     * @param name      document name
+     * @param uri       document uri
+     * @param date      document date
+     * @param summary   document summary
+     * @param content   document content
      */
-    void addToIndex(String id, String name, String content);
+    void addToIndex(String id, String siteId, String name, String uri, Long date, String summary, String content);
 
     /**
      * Delete an indexed document from Solr index
@@ -38,9 +42,13 @@ public interface SearchPlugin<T extends SparkleDocument> extends Plugin {
     /**
      * Update a content in index
      *
-     * @param id      document id
-     * @param name    document name
-     * @param content document content
+     * @param id        document id
+     * @param siteId    document siteId
+     * @param name      document name
+     * @param uri       document uri
+     * @param date      document date
+     * @param summary   document summary
+     * @param content   document content
      */
-    void update(String id, String name, String content);
+    void update(String id, String siteId, String name, String uri, Long date, String summary, String content);
 }

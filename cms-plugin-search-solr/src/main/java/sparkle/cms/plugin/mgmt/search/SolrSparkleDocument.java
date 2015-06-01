@@ -24,6 +24,9 @@ public class SolrSparkleDocument implements SparkleDocument {
 
     @Field
     private String name;
+    private String uri;
+    private long date;
+    private String summary;
 
     @Field
     private String content;
@@ -35,6 +38,7 @@ public class SolrSparkleDocument implements SparkleDocument {
         return new Builder(id, name);
     }
 
+    @Override
     public String getId() {
         return id;
     }
@@ -43,22 +47,29 @@ public class SolrSparkleDocument implements SparkleDocument {
         return siteId;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
-    public String getContent() {
-        return content;
+    @Override
+    public String getUri() {
+        return uri;
     }
 
     @Override
-    public String toString() {
-        return "SolrSparkleDocument{" +
-                "id='" + id + '\'' +
-                ", siteId='" + siteId + '\'' +
-                ", name='" + name + '\'' +
-                ", content='" + content + '\'' +
-                '}';
+    public Long getDate() {
+        return date;
+    }
+
+    @Override
+    public String getSummary() {
+        return summary;
+    }
+
+    @Override
+    public String getContent() {
+        return content;
     }
 
     public static class Builder {
@@ -72,6 +83,21 @@ public class SolrSparkleDocument implements SparkleDocument {
 
         public Builder siteId(String siteId) {
             build.siteId = siteId;
+            return this;
+        }
+
+        public Builder uri(String uri) {
+            build.uri = uri;
+            return this;
+        }
+
+        public Builder date(long date) {
+            build.date = date;
+            return this;
+        }
+
+        public Builder summary(String summary) {
+            build.summary = summary;
             return this;
         }
 
