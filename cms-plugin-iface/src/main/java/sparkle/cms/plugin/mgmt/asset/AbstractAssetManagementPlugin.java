@@ -22,7 +22,7 @@ public abstract class AbstractAssetManagementPlugin<C extends Container, A exten
     protected CmsAssetRepository cmsAssetRepository;
 
     public AbstractAssetManagementPlugin() {
-        type = PluginType.ASSET_MGMT;
+        super(PluginType.ASSET_MGMT);
     }
 
     @Override

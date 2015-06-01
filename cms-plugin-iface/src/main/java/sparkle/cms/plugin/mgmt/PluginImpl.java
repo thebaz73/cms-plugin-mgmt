@@ -22,10 +22,10 @@ import java.util.UUID;
 public abstract class PluginImpl implements Plugin {
     private static final String VERSION = "1.0";
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final PluginType type;
 
     protected String id;
     protected String name;
-    protected PluginType type;
     protected PluginStatus status;
     protected Properties properties;
     protected List<CmsSetting> settings;
@@ -33,7 +33,8 @@ public abstract class PluginImpl implements Plugin {
     @Autowired
     protected CmsSettingRepository cmsSettingRepository;
 
-    public PluginImpl() {
+    public PluginImpl(PluginType type) {
+        this.type = type;
         settings = new ArrayList<>();
     }
 

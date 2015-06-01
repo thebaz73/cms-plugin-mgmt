@@ -20,7 +20,7 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
     private Resource resource;
 
     public DummyAssetManagementPlugin() {
-        type = PluginType.ASSET_MGMT;
+        super(PluginType.ASSET_MGMT);
     }
 
     /**
