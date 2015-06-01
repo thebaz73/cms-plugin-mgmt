@@ -28,10 +28,12 @@ public interface SearchPlugin<T extends SparkleDocument> extends Plugin {
     /**
      * Search index for specified term
      *
+     *
+     * @param siteId site id
      * @param searchTerm search term
      * @return found documents
      */
-    List<T> search(String searchTerm);
+    List<T> search(String siteId, String searchTerm);
 
     /**
      * Update a content in index

@@ -4,13 +4,13 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.springframework.data.solr.core.SolrTemplate;
 
 /**
- * SolrContentRepositoryFactory
+ * SolrContentTemplateFactory
  * Created by bazzoni on 31/05/2015.
  */
-public class SolrContentRepositoryFactory {
+public class SolrContentTemplateFactory {
     private final String solrServerUrl;
 
-    public SolrContentRepositoryFactory(String solrServerUrl) {
+    public SolrContentTemplateFactory(String solrServerUrl) {
         this.solrServerUrl = solrServerUrl;
     }
 

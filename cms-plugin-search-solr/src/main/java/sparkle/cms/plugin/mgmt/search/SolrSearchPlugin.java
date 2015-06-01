@@ -11,7 +11,7 @@ import sparkle.cms.domain.CmsSetting;
 import sparkle.cms.domain.SettingType;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
 import sparkle.cms.plugin.mgmt.PluginStatus;
-import sparkle.cms.plugin.mgmt.search.solr.SolrContentRepositoryFactory;
+import sparkle.cms.plugin.mgmt.search.solr.SolrContentTemplateFactory;
 
 import java.util.List;
 
@@ -63,8 +63,8 @@ public class SolrSearchPlugin extends AbstractSearchPlugin<SolrSparkleDocument> 
         if (!solrServerUrl.equals("<change me>")) {
             if (!solrServerUrl.endsWith("/")) {
                 solrServerUrl = String.format("%s/", solrServerUrl);
-                SolrContentRepositoryFactory repositoryFactory = new SolrContentRepositoryFactory(solrServerUrl);
-                solrTemplate = repositoryFactory.createSolrTemplate();
+                SolrContentTemplateFactory factory = new SolrContentTemplateFactory(solrServerUrl);
+                solrTemplate = factory.createSolrTemplate();
             }
             status = PluginStatus.ACTIVE;
         }
@@ -100,14 +100,15 @@ public class SolrSearchPlugin extends AbstractSearchPlugin<SolrSparkleDocument> 
     /**
      * Search index for specified term
      *
+     * @param siteId site id
      * @param searchTerm search term
      * @return found documents
      */
     @Override
-    public List<SolrSparkleDocument> search(String searchTerm) {
+    public List<SolrSparkleDocument> search(String siteId, String searchTerm) {
         String[] words = searchTerm.split(" ");
 
-        Criteria conditions = createSearchConditions(words);
+        Criteria conditions = Criteria.where(SolrSparkleDocument.FIELD_SITEID).is(siteId).and(createSearchConditions(words));
         SimpleQuery search = new SimpleQuery(conditions);
         search.addSort(sortByIdDesc());
 

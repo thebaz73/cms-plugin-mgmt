@@ -13,10 +13,14 @@ public class SolrSparkleDocument implements SparkleDocument {
     public static final String FIELD_ID = "id";
     public static final String FIELD_NAME = "name";
     public static final String FIELD_CONTENT = "content";
+    public static final String FIELD_SITEID = "siteId";
 
     @Id
     @Field
     private String id;
+
+    @Field
+    private String siteId;
 
     @Field
     private String name;
@@ -35,6 +39,10 @@ public class SolrSparkleDocument implements SparkleDocument {
         return id;
     }
 
+    public String getSiteId() {
+        return siteId;
+    }
+
     public String getName() {
         return name;
     }
@@ -47,6 +55,7 @@ public class SolrSparkleDocument implements SparkleDocument {
     public String toString() {
         return "SolrSparkleDocument{" +
                 "id='" + id + '\'' +
+                ", siteId='" + siteId + '\'' +
                 ", name='" + name + '\'' +
                 ", content='" + content + '\'' +
                 '}';
@@ -59,6 +68,11 @@ public class SolrSparkleDocument implements SparkleDocument {
             build = new SolrSparkleDocument();
             build.id = id;
             build.name = name;
+        }
+
+        public Builder siteId(String siteId) {
+            build.siteId = siteId;
+            return this;
         }
 
         public Builder content(String content) {

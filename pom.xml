@@ -62,6 +62,7 @@
         <module>cms-plugin-asset-filesystem</module>
         <module>cms-plugin-asset-fedora</module>
         <module>cms-plugin-search-solr</module>
+        <module>cms-plugin-search-mongo</module>
     </modules>
 
     <build>
@@ -156,11 +157,6 @@
                 <artifactId>httpclient</artifactId>
                 <version>${httpclient.version}</version>
             </dependency>
-            <!--<dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${org.apache.commons.version}</version>
-            </dependency>-->
             <dependency>
                 <groupId>org.fcrepo</groupId>
                 <artifactId>fcrepo-kernel</artifactId>
