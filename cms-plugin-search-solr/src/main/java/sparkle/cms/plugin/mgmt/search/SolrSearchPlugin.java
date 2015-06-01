@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.stereotype.Component;
 import sparkle.cms.domain.CmsSetting;
 import sparkle.cms.domain.SettingType;
 import sparkle.cms.plugin.mgmt.PluginOperationException;
@@ -18,6 +19,7 @@ import java.util.List;
  * SolrSearchPlugin
  * Created by bazzoni on 30/05/2015.
  */
+@Component
 public class SolrSearchPlugin extends AbstractSearchPlugin<SolrSparkleDocument> {
 
     @Value("classpath:/META-INF/solr-plugin.properties")
