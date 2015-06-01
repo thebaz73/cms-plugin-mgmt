@@ -15,6 +15,7 @@ import sparkle.cms.plugin.mgmt.PluginOperationException;
 import sparkle.cms.plugin.mgmt.PluginStatus;
 import sparkle.cms.plugin.mgmt.search.mongo.MongoTemplateFactory;
 
+import java.text.Normalizer;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -127,7 +128,7 @@ public class MongoSearchPlugin extends AbstractSearchPlugin<MongoSparkleDocument
         Criteria conditions = null;
 
         for (String word : words) {
-            word = ".*|" + word + "|.*";
+            word = ".*|" + normalize(word) + "|.*";
             if (conditions == null) {
                 conditions = Criteria.where(MongoSparkleDocument.FIELD_NAME).regex(word)
                         .orOperator(Criteria.where(MongoSparkleDocument.FIELD_CONTENT).regex(word));
@@ -138,5 +139,11 @@ public class MongoSearchPlugin extends AbstractSearchPlugin<MongoSparkleDocument
         }
 
         return conditions;
+    }
+
+    private String normalize(String word) {
+        return Normalizer.normalize(word, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                .replaceAll("[^\\p{Alnum}|/|\\.]+", "_");
     }
 }
