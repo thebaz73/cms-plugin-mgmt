@@ -1,6 +1,22 @@
 #Sparkle CMS Plugin Management
 The Content Management System designed for Micro services
 
+**Table of Contents**
+
+- [Sparkle philosophy](#sparkle-philosophy)
+- [Features](#features)
+- [Modules](#modules)
+	- [Registration](#registration)
+		- [Web service](#web-service)
+		- [Web User Interface](#web-user-interface)
+	- [Authoring](#authoring)
+		- [Web service](#web-service)
+		- [Web User Interface](#web-user-interface)
+- [License](#license)
+- [Hacking](#hacking)
+	- [Project repositories](#project-repositories)
+	- [Technologies selection](#technologies-selection)
+
 # Sparkle philosophy
 Sparkle CMS was designed and implemented with Cloud in mind. Sparkle architecture is thinked to be used with [Docker containers](http://en.wikipedia.org/wiki/Docker_(software)) and [Amazon AMIs](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html)
 
