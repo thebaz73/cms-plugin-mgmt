@@ -37,7 +37,7 @@ public class CmsSolrIntegrationConfig {
         return new HttpSolrServer(environment.getRequiredProperty(PROPERTY_NAME_SOLR_SERVER_URL));
     }
 
-    private SolrServerFactory solrServerFactory() {
+    public SolrServerFactory solrServerFactory() {
         EmbeddedSolrServerFactoryBean factory = new EmbeddedSolrServerFactoryBean();
         factory.setSolrHome(environment.getRequiredProperty(PROPERTY_NAME_SOLR_SOLR_HOME));
 
