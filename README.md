@@ -1,4 +1,4 @@
-# Sparkle CMS
+# Sparkle CMS Plugin Management
 The Content Management System designed for Micro services
 
 **Table of Contents**
