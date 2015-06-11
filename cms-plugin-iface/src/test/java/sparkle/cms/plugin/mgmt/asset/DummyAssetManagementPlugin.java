@@ -185,13 +185,22 @@ public class DummyAssetManagementPlugin extends PluginImpl implements AssetManag
     }
     
     /**
-     * Executes plugin default tasks
+     * Executes plugin default start up tasks
      *
      * @throws PluginOperationException if error
      */
 	@Override
-	public void doExecuteDefaultTasks() throws PluginOperationException {
-	}
+    public void doExecuteStartupTasks() throws PluginOperationException {
+    }
+
+    /**
+     * Executes plugin default shutdown tasks
+     *
+     * @throws PluginOperationException if error
+     */
+    @Override
+    public void doExecuteShutdownTasks() throws PluginOperationException {
+    }
 
     /**
      * Validates plugin

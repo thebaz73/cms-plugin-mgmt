@@ -272,4 +272,13 @@ public class FedoraAssetManagementPlugin extends AbstractAssetManagementPlugin<F
             throw new PluginOperationException("Fedora Repository related error.", e);
         }
     }
+
+    /**
+     * Executes specific finalization tasks
+     *
+     * @throws PluginOperationException
+     */
+    @Override
+    protected void finalizeObjects() throws PluginOperationException {
+    }
 }

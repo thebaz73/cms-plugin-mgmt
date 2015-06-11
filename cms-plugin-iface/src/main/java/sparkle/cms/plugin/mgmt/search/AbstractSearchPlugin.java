@@ -14,12 +14,22 @@ public abstract class AbstractSearchPlugin<T extends SparkleDocument> extends Pl
     }
 
     /**
-     * Executes plugin default tasks
+     * Executes plugin default start up tasks
      *
      * @throws PluginOperationException if error
      */
     @Override
-    public void doExecuteDefaultTasks() throws PluginOperationException {
+    public void doExecuteStartupTasks() throws PluginOperationException {
+        //do nothing
+    }
+
+    /**
+     * Executes plugin default shutdown tasks
+     *
+     * @throws PluginOperationException if error
+     */
+    @Override
+    public void doExecuteShutdownTasks() throws PluginOperationException {
         //do nothing
     }
 }

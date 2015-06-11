@@ -66,9 +66,16 @@ public interface Plugin {
     void doActivate() throws PluginOperationException;
 
     /**
-     * Executes plugin default tasks
+     * Executes plugin default start up tasks
      *
      * @throws PluginOperationException if error
      */
-    void doExecuteDefaultTasks() throws PluginOperationException;
+    void doExecuteStartupTasks() throws PluginOperationException;
+
+    /**
+     * Executes plugin default shutdown tasks
+     *
+     * @throws PluginOperationException if error
+     */
+    void doExecuteShutdownTasks() throws PluginOperationException;
 }

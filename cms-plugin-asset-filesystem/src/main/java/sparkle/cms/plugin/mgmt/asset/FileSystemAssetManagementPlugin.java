@@ -243,4 +243,13 @@ public class FileSystemAssetManagementPlugin extends AbstractAssetManagementPlug
             }
         }
     }
+
+    /**
+     * Executes specific finalization tasks
+     *
+     * @throws PluginOperationException
+     */
+    @Override
+    protected void finalizeObjects() throws PluginOperationException {
+    }
 }

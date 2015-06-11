@@ -32,9 +32,12 @@ Sparkle CMS is implemented with following feature in mind:
  * Integrated pluggable Full text search functionalities
  * Comment management [(3)](#note-3)
 
-#### Note 1: Only simple site workflow management in version 1.0-SNAPSHOT
-#### Note 2: Still not implemented in version 1.0-SNAPSHOT
-#### Note 3: Still under development
+#### Note 1: 
+Only simple site workflow management in version 1.0-SNAPSHOT
+#### Note 2: 
+Still not implemented in version 1.0-SNAPSHOT
+#### Note 3: 
+Still under development
 
 # Modules
 Sparkle CMS is composed by different modules: each with a specific functionality.

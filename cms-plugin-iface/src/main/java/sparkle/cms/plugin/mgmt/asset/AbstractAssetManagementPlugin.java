@@ -25,8 +25,13 @@ public abstract class AbstractAssetManagementPlugin<C extends Container, A exten
         super(PluginType.ASSET_MGMT);
     }
 
+    /**
+     * Executes plugin default start up tasks
+     *
+     * @throws PluginOperationException if error
+     */
     @Override
-    public void doExecuteDefaultTasks() throws PluginOperationException {
+    public void doExecuteStartupTasks() throws PluginOperationException {
         cmsAssetRepository.deleteAll();
         List<CmsSite> cmsSites = cmsSiteRepository.findAll();
 		for (CmsSite cmsSite : cmsSites) {
@@ -42,6 +47,16 @@ public abstract class AbstractAssetManagementPlugin<C extends Container, A exten
 	}
 
     /**
+     * Executes plugin default shutdown tasks
+     *
+     * @throws PluginOperationException if error
+     */
+    @Override
+    public void doExecuteShutdownTasks() throws PluginOperationException {
+        finalizeObjects();
+    }
+
+    /**
      * Load all repository assets into central CMS database
      *
      * @param siteId         site id
@@ -49,4 +64,11 @@ public abstract class AbstractAssetManagementPlugin<C extends Container, A exten
      * @throws PluginOperationException if error
      */
     protected abstract void loadChildren(String siteId, C siteRepository) throws PluginOperationException;
+
+    /**
+     * Executes specific finalization tasks
+     *
+     * @throws PluginOperationException
+     */
+    protected abstract void finalizeObjects() throws PluginOperationException;
 }

@@ -69,12 +69,16 @@ public class PluginService extends AbstractCmsSettingAwareService {
                 plugin.doActivate();
                 if (plugin.getStatus().equals(PluginStatus.ACTIVE)) {
                     if (force) {
-                        plugin.doExecuteDefaultTasks();
+                        plugin.doExecuteStartupTasks();
                     }
                     if (AssetManagementPlugin.class.isAssignableFrom(plugin.getClass())) {
                         assetManagementPlugin = (AssetManagementPlugin<? extends Container, ? extends Asset>) plugin;
                     } else if (SearchPlugin.class.isAssignableFrom(plugin.getClass())) {
                         searchPlugin = (SearchPlugin<? extends SparkleDocument>) plugin;
+                    }
+                } else if (plugin.getStatus().equals(PluginStatus.INSTALLED)) {
+                    if (force) {
+                        plugin.doExecuteShutdownTasks();
                     }
                 }
             } catch (PluginOperationException e) {

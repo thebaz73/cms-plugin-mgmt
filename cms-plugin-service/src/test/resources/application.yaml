@@ -6,4 +6,4 @@ spring:
 
 logging:
     level.org.springframework: INFO
-    level.ms.cms: DEBUG
+    levelsparkle.cms: DEBUG
