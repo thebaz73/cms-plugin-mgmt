@@ -79,6 +79,7 @@ public class PluginService extends AbstractCmsSettingAwareService {
                 } else if (plugin.getStatus().equals(PluginStatus.INSTALLED)) {
                     if (force) {
                         plugin.doExecuteShutdownTasks();
+                        plugin.doDeactivate();
                     }
                 }
             } catch (PluginOperationException e) {
