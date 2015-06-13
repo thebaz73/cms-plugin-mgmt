@@ -20,10 +20,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import sparkle.cms.data.CmsSettingRepository;
 import sparkle.cms.domain.CmsSetting;
 import sparkle.cms.domain.SettingType;
+import sparkle.cms.plugin.mgmt.PluginOperationException;
 import sparkle.cms.plugin.mgmt.PluginStatus;
 
 import javax.jcr.*;
 import javax.jcr.nodetype.NodeType;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,6 +81,7 @@ public class JackrabbitAssetManagementPluginTest extends AbstractMongoConfigurat
                 node.remove();
             }
         }
+        session.save();
         session.logout();
     }
 
@@ -131,12 +134,55 @@ public class JackrabbitAssetManagementPluginTest extends AbstractMongoConfigurat
 
     @Test
     public void testDelete() throws Exception {
+        final Session session = getSession();
 
+        final Node siteNode = JcrUtils.getOrAddFolder(session.getRootNode(), siteId);
+        final Node folderNode = JcrUtils.getOrAddFolder(siteNode, "folder");
+        ByteArrayOutputStream baos = readDataFromClasspath();
+        JcrUtils.putFile(folderNode, "img.png", "image/png", new ByteArrayInputStream(baos.toByteArray()));
+
+        session.save();
+        session.logout();
+
+        plugin.doActivate();
+
+        Asset asset;
+        asset = plugin.findAsset(siteId, "folder", "img.png");
+        assertNotNull(asset);
+        plugin.deleteSiteRepository(siteId);
+        asset = null;
+        try {
+            asset = plugin.findAsset(siteId, "folder", "img.png");
+        } catch (PluginOperationException e) {
+            assertNotNull(e);
+        }
+        assertNull(asset);
     }
 
     @Test
     public void testFind() throws Exception {
+        final Session session = getSession();
 
+        final Node siteNode = JcrUtils.getOrAddFolder(session.getRootNode(), siteId);
+        final Node folderNode = JcrUtils.getOrAddFolder(siteNode, "folder");
+        ByteArrayOutputStream baos = readDataFromClasspath();
+        JcrUtils.putFile(folderNode, "img.png", "image/png", new ByteArrayInputStream(baos.toByteArray()));
+
+        session.save();
+        session.logout();
+        plugin.doActivate();
+
+        final Container site = plugin.findSiteRepository(siteId);
+        assertNotNull(site);
+        assertEquals(siteId, site.toString());
+
+        final Container folder = plugin.findFolder(siteId, "folder");
+        assertNotNull(folder);
+        assertEquals("folder", folder.toString());
+
+        Asset asset = plugin.findAsset(siteId, "folder", "img.png");
+        assertNotNull(asset);
+        assertArrayEquals(asset.getContent(), baos.toByteArray());
     }
 
     private Session getSession() throws RepositoryException {
