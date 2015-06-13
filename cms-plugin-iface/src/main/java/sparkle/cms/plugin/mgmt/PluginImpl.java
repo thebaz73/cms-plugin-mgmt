@@ -129,7 +129,17 @@ public abstract class PluginImpl implements Plugin {
         }
     }
 
-	/**
+    /**
+     * Deactivates plugin
+     *
+     * @throws PluginOperationException if error
+     */
+    @Override
+    public void doDeactivate() throws PluginOperationException {
+        status = PluginStatus.INACTIVE;
+    }
+
+    /**
      * Initialize plugin settings
      *
      * @throws PluginOperationException if error
