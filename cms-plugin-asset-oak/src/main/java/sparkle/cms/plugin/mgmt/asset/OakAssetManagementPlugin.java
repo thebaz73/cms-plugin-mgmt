@@ -1,10 +1,14 @@
 package sparkle.cms.plugin.mgmt.asset;
 
+import com.mongodb.Mongo;
 import org.apache.jackrabbit.commons.JcrUtils;
-import org.apache.jackrabbit.commons.jackrabbit.authorization.AccessControlUtils;
-import org.apache.jackrabbit.core.RepositoryFactoryImpl;
+import org.apache.jackrabbit.oak.Oak;
+import org.apache.jackrabbit.oak.jcr.Jcr;
+import org.apache.jackrabbit.oak.plugins.document.DocumentMK;
+import org.apache.jackrabbit.oak.plugins.document.DocumentNodeStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -15,29 +19,29 @@ import sparkle.cms.plugin.mgmt.PluginOperationException;
 import sparkle.cms.plugin.mgmt.PluginStatus;
 
 import javax.jcr.*;
-import javax.jcr.security.Privilege;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.Principal;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import static sparkle.cms.plugin.mgmt.asset.AssetUtils.findAssetTypeByFileName;
 
+
 /**
- * JackrabbitAssetManagementPlugin
- * Created by bazzoni on 10/06/2015.
+ * OakAssetManagementPlugin
+ * Created by bazzoni on 14/06/2015.
  */
 @Component
-public class JackrabbitAssetManagementPlugin extends AbstractAssetManagementPlugin<JackrabbitContainer, JackrabbitAsset> {
+public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakContainer, OakAsset> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private Repository repository = null;
     private Session session = null;
 
-    @Value("classpath:/META-INF/jackrabbit-plugin.properties")
+    @Value("classpath:/META-INF/oak-plugin.properties")
     private Resource resource;
+
+    @Autowired
+    private Mongo mongo;
 
     /**
      * Get spring initialized resource
@@ -57,7 +61,7 @@ public class JackrabbitAssetManagementPlugin extends AbstractAssetManagementPlug
     @Override
     protected void createSettings() throws PluginOperationException {
         settings.add(new CmsSetting(getCompoundKey("activate"), getSetting("activate", Boolean.class, false), SettingType.BOOL));
-        settings.add(new CmsSetting(getCompoundKey("repositoryURL"), getSetting("repositoryURL", String.class, "<change me>"), SettingType.INET));
+        settings.add(new CmsSetting(getCompoundKey("dbName"), getSetting("dbName", String.class, "<change me>"), SettingType.TEXT));
         settings.add(new CmsSetting(getCompoundKey("username"), getSetting("username", String.class, "<change me>"), SettingType.TEXT));
         settings.add(new CmsSetting(getCompoundKey("password"), getSetting("password", String.class, "<change me>"), SettingType.TEXT));
     }
@@ -69,8 +73,8 @@ public class JackrabbitAssetManagementPlugin extends AbstractAssetManagementPlug
      */
     @Override
     protected void doValidate() throws PluginOperationException {
-        String repositoryURL = getSetting("repositoryURL", String.class, properties.getProperty("plugin.repositoryURL"));
-        if (repositoryURL.isEmpty()) {
+        String dbName = getSetting("dbName", String.class, properties.getProperty("plugin.dbName"));
+        if (dbName.isEmpty()) {
             throw new PluginOperationException("Cannot define repository URL");
         }
         String username = getSetting("username", String.class, properties.getProperty("plugin.username"));
@@ -80,19 +84,13 @@ public class JackrabbitAssetManagementPlugin extends AbstractAssetManagementPlug
         if (password.isEmpty() || password.equals("<change me>"))
             throw new PluginOperationException("Cannot define password");
 
-        if (!repositoryURL.equals("<change me>")) {
-            if (!repositoryURL.endsWith("/")) {
-                repositoryURL = String.format("%s/", repositoryURL);
-            }
-
-            Map<String, String> parameters = new HashMap<>();
-            parameters.put(JcrUtils.REPOSITORY_URI, repositoryURL);
-            RepositoryFactory repositoryFactory = new RepositoryFactoryImpl();
+        if (!dbName.equals("<change me>")) {
             try {
-                repository = repositoryFactory.getRepository(parameters);
+                DocumentNodeStore ns = new DocumentMK.Builder().
+                        setMongoDB(mongo.getDB(dbName)).getNodeStore();
+                repository = new Jcr(new Oak(ns)).createRepository();
                 session = repository.login(new SimpleCredentials(username, password.toCharArray()));
-                Principal everyonePrincipal = AccessControlUtils.getEveryonePrincipal(session);
-                AccessControlUtils.allow(session.getRootNode(), everyonePrincipal.getName(), Privilege.JCR_ALL);
+
                 String user = session.getUserID();
                 String name = repository.getDescriptor(Repository.REP_NAME_DESC);
                 logger.debug("Logged in as " + user + " to a " + name + " repository.");
@@ -111,7 +109,7 @@ public class JackrabbitAssetManagementPlugin extends AbstractAssetManagementPlug
      * @throws PluginOperationException if error
      */
     @Override
-    protected void loadChildren(String siteId, JackrabbitContainer siteRepository) throws PluginOperationException {
+    protected void loadChildren(String siteId, OakContainer siteRepository) throws PluginOperationException {
         try {
             final Node siteNode = JcrUtils.getOrAddFolder(session.getRootNode(), siteId);
             final Iterable<Node> childNodes = JcrUtils.getChildNodes(siteNode);
@@ -270,10 +268,10 @@ public class JackrabbitAssetManagementPlugin extends AbstractAssetManagementPlug
      * @return site container
      */
     @Override
-    public JackrabbitContainer findSiteRepository(String siteId) throws PluginOperationException {
+    public OakContainer findSiteRepository(String siteId) throws PluginOperationException {
         try {
             final Node node = session.getRootNode().getNode(siteId);
-            return new JackrabbitContainer(node.hasNodes(), node.getName());
+            return new OakContainer(node.hasNodes(), node.getName());
         } catch (RepositoryException e) {
             throw new PluginOperationException("Cannot find node", e);
         }
@@ -287,10 +285,10 @@ public class JackrabbitAssetManagementPlugin extends AbstractAssetManagementPlug
      * @return folder container
      */
     @Override
-    public JackrabbitContainer findFolder(String siteId, String path) throws PluginOperationException {
+    public OakContainer findFolder(String siteId, String path) throws PluginOperationException {
         try {
             final Node node = session.getRootNode().getNode(String.format("%s/%s", siteId, path));
-            return new JackrabbitContainer(node.hasNodes(), node.getName());
+            return new OakContainer(node.hasNodes(), node.getName());
         } catch (RepositoryException e) {
             throw new PluginOperationException("Cannot find node", e);
         }
@@ -305,7 +303,7 @@ public class JackrabbitAssetManagementPlugin extends AbstractAssetManagementPlug
      * @return asset
      */
     @Override
-    public JackrabbitAsset findAsset(String siteId, String path, String name) throws PluginOperationException {
+    public OakAsset findAsset(String siteId, String path, String name) throws PluginOperationException {
         try {
             String nodePath;
             if (path.endsWith("/") || path.isEmpty()) {
@@ -316,7 +314,7 @@ public class JackrabbitAssetManagementPlugin extends AbstractAssetManagementPlug
             Node node = session.getRootNode().getNode(nodePath);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             JcrUtils.readFile(node, baos);
-            return new JackrabbitAsset(node.getPath(), baos);
+            return new OakAsset(node.getPath(), baos);
         } catch (RepositoryException | IOException e) {
             throw new PluginOperationException("Cannot read asset node", e);
         }
