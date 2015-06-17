@@ -42,6 +42,7 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
 
     @Autowired
     private Mongo mongo;
+    private DocumentNodeStore documentNodeStore;
 
     /**
      * Get spring initialized resource
@@ -75,7 +76,7 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
     protected void doValidate() throws PluginOperationException {
         String dbName = getSetting("dbName", String.class, properties.getProperty("plugin.dbName"));
         if (dbName.isEmpty()) {
-            throw new PluginOperationException("Cannot define repository URL");
+            throw new PluginOperationException("Cannot define database name");
         }
         String username = getSetting("username", String.class, properties.getProperty("plugin.username"));
         if (username.isEmpty() || username.equals("<change me>"))
@@ -86,9 +87,9 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
 
         if (!dbName.equals("<change me>")) {
             try {
-                DocumentNodeStore ns = new DocumentMK.Builder().
+                documentNodeStore = new DocumentMK.Builder().
                         setMongoDB(mongo.getDB(dbName)).getNodeStore();
-                repository = new Jcr(new Oak(ns)).createRepository();
+                repository = new Jcr(new Oak(documentNodeStore)).createRepository();
                 session = repository.login(new SimpleCredentials(username, password.toCharArray()));
 
                 String user = session.getUserID();
@@ -133,7 +134,7 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
     protected void finalizeObjects() throws PluginOperationException {
         if (session != null) {
             session.logout();
-            repository = null;
+            documentNodeStore.dispose();
         }
     }
 
@@ -164,9 +165,11 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
     @Override
     public void deleteSiteRepository(String siteId) throws PluginOperationException {
         try {
-            final Node node = session.getRootNode().getNode(siteId);
-            node.remove();
-            session.save();
+            if (session.getRootNode().hasNode(siteId)) {
+                final Node node = session.getRootNode().getNode(siteId);
+                node.remove();
+                session.save();
+            }
         } catch (RepositoryException e) {
             throw new PluginOperationException("Cannot create node", e);
         }
@@ -202,10 +205,13 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
      */
     @Override
     public void deleteFolder(String siteId, String path) throws PluginOperationException {
+        final String nodePath = String.format("%s/%s", siteId, path);
         try {
-            final Node node = session.getRootNode().getNode(String.format("%s/%s", siteId, path));
-            node.remove();
-            session.save();
+            if (session.getRootNode().hasNode(nodePath)) {
+                final Node node = session.getRootNode().getNode(nodePath);
+                node.remove();
+                session.save();
+            }
         } catch (RepositoryException e) {
             throw new PluginOperationException("Cannot create node", e);
         }
@@ -227,7 +233,7 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
         try {
             Node rootNode = session.getRootNode();
             final Node siteNode = JcrUtils.getOrAddFolder(rootNode, siteId);
-            final Node folder = JcrUtils.getOrAddFolder(siteNode, path);
+            final Node folder = path.isEmpty() ? siteNode : JcrUtils.getOrAddFolder(siteNode, path);
             final Node asset = JcrUtils.putFile(folder, name, contentType, new ByteArrayInputStream(data));
             session.save();
             return asset.getName();
@@ -246,16 +252,18 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
      */
     @Override
     public void deleteAsset(String siteId, String path, String name) throws PluginOperationException {
+        String nodePath;
+        if (path.endsWith("/") || path.isEmpty()) {
+            nodePath = String.format("%s/%s%s", siteId, path, name);
+        } else {
+            nodePath = String.format("%s/%s/%s", siteId, path, name);
+        }
         try {
-            String nodePath;
-            if (path.endsWith("/") || path.isEmpty()) {
-                nodePath = String.format("%s/%s%s", siteId, path, name);
-            } else {
-                nodePath = String.format("%s/%s/%s", siteId, path, name);
+            if (session.getRootNode().hasNode(nodePath)) {
+                final Node node = session.getRootNode().getNode(nodePath);
+                node.remove();
+                session.save();
             }
-            final Node node = session.getRootNode().getNode(nodePath);
-            node.remove();
-            session.save();
         } catch (RepositoryException e) {
             throw new PluginOperationException("Cannot create node", e);
         }
@@ -270,8 +278,12 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
     @Override
     public OakContainer findSiteRepository(String siteId) throws PluginOperationException {
         try {
-            final Node node = session.getRootNode().getNode(siteId);
-            return new OakContainer(node.hasNodes(), node.getName());
+            OakContainer oakContainer = null;
+            if (session.getRootNode().hasNode(siteId)) {
+                final Node node = session.getRootNode().getNode(siteId);
+                oakContainer = new OakContainer(node.hasNodes(), node.getName());
+            }
+            return oakContainer;
         } catch (RepositoryException e) {
             throw new PluginOperationException("Cannot find node", e);
         }
@@ -287,8 +299,12 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
     @Override
     public OakContainer findFolder(String siteId, String path) throws PluginOperationException {
         try {
-            final Node node = session.getRootNode().getNode(String.format("%s/%s", siteId, path));
-            return new OakContainer(node.hasNodes(), node.getName());
+            OakContainer oakContainer = null;
+            if (session.getRootNode().hasNode(siteId)) {
+                final Node node = session.getRootNode().getNode(String.format("%s/%s", siteId, path));
+                oakContainer = new OakContainer(node.hasNodes(), node.getName());
+            }
+            return oakContainer;
         } catch (RepositoryException e) {
             throw new PluginOperationException("Cannot find node", e);
         }
@@ -304,17 +320,21 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
      */
     @Override
     public OakAsset findAsset(String siteId, String path, String name) throws PluginOperationException {
+        String nodePath;
+        if (path.endsWith("/") || path.isEmpty()) {
+            nodePath = String.format("%s/%s%s", siteId, path, name);
+        } else {
+            nodePath = String.format("%s/%s/%s", siteId, path, name);
+        }
         try {
-            String nodePath;
-            if (path.endsWith("/") || path.isEmpty()) {
-                nodePath = String.format("%s/%s%s", siteId, path, name);
-            } else {
-                nodePath = String.format("%s/%s/%s", siteId, path, name);
+            OakAsset oakAsset = null;
+            if (session.getRootNode().hasNode(nodePath)) {
+                Node node = session.getRootNode().getNode(nodePath);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                JcrUtils.readFile(node, baos);
+                oakAsset = new OakAsset(node.getPath(), baos);
             }
-            Node node = session.getRootNode().getNode(nodePath);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            JcrUtils.readFile(node, baos);
-            return new OakAsset(node.getPath(), baos);
+            return oakAsset;
         } catch (RepositoryException | IOException e) {
             throw new PluginOperationException("Cannot read asset node", e);
         }
