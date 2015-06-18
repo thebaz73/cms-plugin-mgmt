@@ -1,6 +1,8 @@
 package sparkle.cms.plugin.mgmt.asset;
 
+import com.mongodb.DB;
 import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import org.apache.jackrabbit.commons.JcrUtils;
 import org.apache.jackrabbit.oak.Oak;
 import org.apache.jackrabbit.oak.jcr.Jcr;
@@ -22,6 +24,7 @@ import javax.jcr.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Date;
 
 import static sparkle.cms.plugin.mgmt.asset.AssetUtils.findAssetTypeByFileName;
@@ -63,6 +66,8 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
     protected void createSettings() throws PluginOperationException {
         settings.add(new CmsSetting(getCompoundKey("activate"), getSetting("activate", Boolean.class, false), SettingType.BOOL));
         settings.add(new CmsSetting(getCompoundKey("dbName"), getSetting("dbName", String.class, "<change me>"), SettingType.TEXT));
+        settings.add(new CmsSetting(getCompoundKey("dbHost"), getSetting("dbHost", String.class, "<change me>"), SettingType.TEXT));
+        settings.add(new CmsSetting(getCompoundKey("dbPort"), getSetting("dbPort", Integer.class, 0), SettingType.INTEGER));
         settings.add(new CmsSetting(getCompoundKey("username"), getSetting("username", String.class, "<change me>"), SettingType.TEXT));
         settings.add(new CmsSetting(getCompoundKey("password"), getSetting("password", String.class, "<change me>"), SettingType.TEXT));
     }
@@ -78,6 +83,14 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
         if (dbName.isEmpty()) {
             throw new PluginOperationException("Cannot define database name");
         }
+        String dbHost = getSetting("dbHost", String.class, properties.getProperty("plugin.dbHost"));
+        if (dbHost.isEmpty()) {
+            throw new PluginOperationException("Cannot define database host");
+        }
+        Integer dbPort = getSetting("dbPort", Integer.class, Integer.parseInt(properties.getProperty("plugin.dbPort")));
+        if (dbPort == 0) {
+            throw new PluginOperationException("Cannot define database port");
+        }
         String username = getSetting("username", String.class, properties.getProperty("plugin.username"));
         if (username.isEmpty() || username.equals("<change me>"))
             throw new PluginOperationException("Cannot define username");
@@ -87,8 +100,9 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
 
         if (!dbName.equals("<change me>")) {
             try {
+                final DB db = new MongoClient(dbHost, dbPort).getDB(dbName);
                 documentNodeStore = new DocumentMK.Builder().
-                        setMongoDB(mongo.getDB(dbName)).getNodeStore();
+                        setMongoDB(db).getNodeStore();
                 repository = new Jcr(new Oak(documentNodeStore)).createRepository();
                 session = repository.login(new SimpleCredentials(username, password.toCharArray()));
 
@@ -96,7 +110,7 @@ public class OakAssetManagementPlugin extends AbstractAssetManagementPlugin<OakC
                 String name = repository.getDescriptor(Repository.REP_NAME_DESC);
                 logger.debug("Logged in as " + user + " to a " + name + " repository.");
                 status = PluginStatus.ACTIVE;
-            } catch (RepositoryException e) {
+            } catch (RepositoryException | UnknownHostException e) {
                 throw new PluginOperationException("Cannot create JCR repository", e);
             }
         }

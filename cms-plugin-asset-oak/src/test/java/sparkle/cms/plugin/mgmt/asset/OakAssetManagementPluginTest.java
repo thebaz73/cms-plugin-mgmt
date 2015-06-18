@@ -78,6 +78,8 @@ public class OakAssetManagementPluginTest extends AbstractMongoConfiguration {
         cmsSettingRepository.deleteAll();
         cmsSettingRepository.save(new CmsSetting("oak.activate", true, SettingType.BOOL));
         cmsSettingRepository.save(new CmsSetting("oak.dbName", "cms-test-asset", SettingType.TEXT));
+        cmsSettingRepository.save(new CmsSetting("oak.dbHost", "192.168.108.129", SettingType.TEXT));
+        cmsSettingRepository.save(new CmsSetting("oak.dbPort", 27017, SettingType.INTEGER));
         cmsSettingRepository.save(new CmsSetting("oak.username", "admin", SettingType.TEXT));
         cmsSettingRepository.save(new CmsSetting("oak.password", "admin", SettingType.TEXT));
 
