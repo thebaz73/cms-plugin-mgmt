@@ -136,7 +136,7 @@ public class MongoSearchPlugin extends AbstractSearchPlugin<MongoSparkleDocument
         Criteria conditions = null;
 
         for (String word : words) {
-            word = ".*|" + normalize(word) + "|.*";
+            word = ".*|" + normalize(word)/* + "|.*"*/;
             if (conditions == null) {
                 conditions = Criteria.where(MongoSparkleDocument.FIELD_NAME).regex(word)
                         .orOperator(Criteria.where(MongoSparkleDocument.FIELD_CONTENT).regex(word));
