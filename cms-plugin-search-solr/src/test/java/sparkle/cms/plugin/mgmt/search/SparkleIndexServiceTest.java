@@ -55,7 +55,7 @@ public class SparkleIndexServiceTest {
                         cmsRoleRepository.findByRole("ROLE_MANAGER").get(0)));
         cmsUserRepository.save(cmsUser);
 
-        cmsSite = new CmsSite("evil.com", new Date(), "evil.com", WorkflowType.SELF_APPROVAL_WF, cmsUser);
+        cmsSite = new CmsSite("evil.com", new Date(), "evil.com", WorkflowType.SELF_APPROVAL_WF, CommentApprovalMode.SELF_APPROVAL, cmsUser);
         cmsSiteRepository.save(cmsSite);
     }
 
