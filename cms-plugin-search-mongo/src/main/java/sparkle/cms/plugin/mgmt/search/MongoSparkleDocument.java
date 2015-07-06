@@ -7,7 +7,8 @@ import sparkle.cms.domain.CmsContent;
  * Created by bazzoni on 01/06/2015.
  */
 public class MongoSparkleDocument implements SparkleDocument {
-    public static final String FIELD_NAME = "title";
+    public static final String FIELD_TITLE = "title";
+    public static final String FIELD_SUMMARY = "summary";
     public static final String FIELD_CONTENT = "content";
     public static final String FIELD_SITEID = "siteId";
     private final String id;

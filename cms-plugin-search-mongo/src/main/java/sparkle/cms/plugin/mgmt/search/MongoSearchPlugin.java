@@ -136,13 +136,15 @@ public class MongoSearchPlugin extends AbstractSearchPlugin<MongoSparkleDocument
         Criteria conditions = null;
 
         for (String word : words) {
-            word = ".*|" + normalize(word)/* + "|.*"*/;
+            word = ".*" + normalize(word) + ".*";
             if (conditions == null) {
-                conditions = Criteria.where(MongoSparkleDocument.FIELD_NAME).regex(word)
-                        .orOperator(Criteria.where(MongoSparkleDocument.FIELD_CONTENT).regex(word));
+                conditions = Criteria.where(MongoSparkleDocument.FIELD_TITLE).regex(word, "i")
+                        //.orOperator(Criteria.where(MongoSparkleDocument.FIELD_SUMMARY).regex(word, "im"))
+                        .orOperator(Criteria.where(MongoSparkleDocument.FIELD_CONTENT).regex(word, "im"));
             } else {
-                conditions = conditions.orOperator(Criteria.where(MongoSparkleDocument.FIELD_NAME).regex(word)
-                        .orOperator(Criteria.where(MongoSparkleDocument.FIELD_CONTENT).regex(word)));
+                conditions = conditions.orOperator(Criteria.where(MongoSparkleDocument.FIELD_TITLE).regex(word, "i")
+                        //.orOperator(Criteria.where(MongoSparkleDocument.FIELD_SUMMARY).regex(word, "im"))
+                        .orOperator(Criteria.where(MongoSparkleDocument.FIELD_CONTENT).regex(word, "im")));
             }
         }
 

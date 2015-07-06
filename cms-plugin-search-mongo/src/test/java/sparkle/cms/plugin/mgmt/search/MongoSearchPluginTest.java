@@ -107,18 +107,22 @@ public class MongoSearchPluginTest extends AbstractMongoConfiguration {
     @Test
     public void testSearch() throws Exception {
         List<CmsContent> contentList = new ArrayList<>();
-        contentList.add(new CmsContent(cmsSite.getId(), "Test01", "Test01", "/test01", new Date(), randomAlphabetic(20), randomAlphabetic(200)));
-        contentList.add(new CmsContent(cmsSite.getId(), "Test02", "Test02", "/test02", new Date(), randomAlphabetic(20), randomAlphabetic(200)));
+        contentList.add(new CmsContent(cmsSite.getId(), "Test01", "tabc01", "/test01", new Date(), randomAlphabetic(20), randomAlphabetic(200)));
+        contentList.add(new CmsContent(cmsSite.getId(), "Test02", "tEbct02", "/test02", new Date(), randomAlphabetic(20), randomAlphabetic(200)));
         contentList.add(new CmsContent(cmsSite.getId(), "Test03", "Test03", "/test03", new Date(), randomAlphabetic(20), randomAlphabetic(200)));
         contentList.add(new CmsContent(cmsSite.getId(), "Test04", "Test04", "/test04", new Date(), randomAlphabetic(20), randomAlphabetic(200)));
 
-        List<CmsContent> savedContentList = new ArrayList<>();
-        for (CmsContent cmsContent : contentList) {
-            savedContentList.add(cmsContentRepository.save(cmsContent));
-        }
+        contentList.forEach(cmsContentRepository::save);
 
-        final List<MongoSparkleDocument> documentList = plugin.search(cmsSite.getId(), "est");
+        List<MongoSparkleDocument> documentList;
 
-        assertEquals(savedContentList.size(), documentList.size());
+        documentList = plugin.search(cmsSite.getId(), "bc");
+        assertEquals(2, documentList.size());
+        documentList = plugin.search(cmsSite.getId(), "eb");
+        assertEquals(1, documentList.size());
+        documentList = plugin.search(cmsSite.getId(), "est");
+        assertEquals(2, documentList.size());
+        documentList = plugin.search(cmsSite.getId(), "Te");
+        assertEquals(3, documentList.size());
     }
 }
