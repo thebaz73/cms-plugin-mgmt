@@ -139,12 +139,12 @@ public class MongoSearchPlugin extends AbstractSearchPlugin<MongoSparkleDocument
             word = ".*" + normalize(word) + ".*";
             if (conditions == null) {
                 conditions = Criteria.where(MongoSparkleDocument.FIELD_TITLE).regex(word, "i")
-                        //.orOperator(Criteria.where(MongoSparkleDocument.FIELD_SUMMARY).regex(word, "im"))
-                        .orOperator(Criteria.where(MongoSparkleDocument.FIELD_CONTENT).regex(word, "im"));
+                        /*.orOperator(Criteria.where(MongoSparkleDocument.FIELD_SUMMARY).regex(word, "im"))
+                        .orOperator(Criteria.where(MongoSparkleDocument.FIELD_CONTENT).regex(word, "im"))*/;
             } else {
                 conditions = conditions.orOperator(Criteria.where(MongoSparkleDocument.FIELD_TITLE).regex(word, "i")
-                        //.orOperator(Criteria.where(MongoSparkleDocument.FIELD_SUMMARY).regex(word, "im"))
-                        .orOperator(Criteria.where(MongoSparkleDocument.FIELD_CONTENT).regex(word, "im")));
+                        /*.orOperator(Criteria.where(MongoSparkleDocument.FIELD_SUMMARY).regex(word, "im"))
+                        .orOperator(Criteria.where(MongoSparkleDocument.FIELD_CONTENT).regex(word, "im")*/);
             }
         }
 
